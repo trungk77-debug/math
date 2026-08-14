@@ -123,6 +123,28 @@
   details summary::before{content:"▸ "}
   details[open] summary::before{content:"▾ "}
   @media (max-width:400px){ .expr{font-size:20px} .grid2{grid-template-columns:1fr} }
+
+  /* 답안지 */
+  .aq{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px 16px;margin-bottom:11px;box-shadow:var(--sh)}
+  .aq .no{display:inline-block;background:var(--brand);color:#fff;border-radius:7px;font-size:12px;font-weight:700;padding:2px 9px;margin-right:7px}
+  .aq .ty{font-size:12px;color:var(--sub);font-weight:600}
+  .aq .body{margin:9px 0 2px;font-size:16px;line-height:1.75}
+  .aq .ans{margin-top:10px;background:var(--okbg);border:1px solid #bfe6cf;border-radius:9px;padding:9px 12px;font-size:15.5px}
+  .aq .ans b{color:#0b6b3d}
+  .aq .st{margin-top:8px;font-size:13.5px}
+  .aq .st.o{color:var(--ok)} .aq .st.x{color:var(--bad)}
+  .aq ol{margin:8px 0 0;padding-left:20px}
+  .aq ol li{font-size:14.5px;margin:3px 0;color:#374151}
+  .aq .choices{margin-top:10px}
+  .aq .ch{padding:9px 12px;font-size:15px;min-height:0;cursor:default}
+  @media print{
+    body{background:#fff}
+    header.top,#view-home,#view-select,#view-quiz,#view-result,#pinCard,
+    #btnPrint,#btnAnsBack,.wrap>p.muted{display:none !important}
+    .wrap{padding:0;max-width:none}
+    .card,.aq{box-shadow:none;border-color:#d1d5db;break-inside:avoid;page-break-inside:avoid}
+    #ansHead .row{display:none}
+  }
 </style>
 </head>
 <body>
@@ -143,6 +165,7 @@
       <div class="quizinfo" id="linkInfo"></div>
       <div class="types" id="linkTypes" style="margin-top:12px"></div>
       <button class="btn wide" id="btnStartLink" style="margin-top:16px">시험 시작하기</button>
+      <button class="btn ghost wide sm" id="btnAnsHome" style="margin-top:9px">🔒 답안지 보기 (출제자용)</button>
     </div>
 
     <div class="card" id="upCard">
@@ -219,8 +242,32 @@
       <div class="row" style="margin-top:9px">
         <button class="btn ghost sm hide" id="btnMore">이 유형 한 문제 더</button>
         <button class="btn ghost sm" id="btnQuit">그만두기</button>
+        <button class="btn ghost sm" id="btnAnsQuiz">🔒 답안지</button>
       </div>
     </div>
+  </section>
+
+  <!-- ============ 답안지 ============ -->
+  <section id="view-answers" class="hide">
+    <div class="card" id="pinCard">
+      <h2>🔒 답안지</h2>
+      <p class="desc">출제자용입니다. 비밀번호를 입력하세요.</p>
+      <input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="비밀번호" style="text-align:center;font-size:20px;letter-spacing:.3em">
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="btnPin">확인</button>
+        <button class="btn ghost" id="btnPinBack">뒤로</button>
+      </div>
+      <div id="pinMsg"></div>
+    </div>
+    <div class="card hide" id="ansHead">
+      <h2 id="ansTitle">답안지</h2>
+      <p class="desc" id="ansMeta"></p>
+      <div class="row">
+        <button class="btn ghost sm" id="btnPrint">인쇄 / PDF 저장</button>
+        <button class="btn ghost sm" id="btnAnsBack">돌아가기</button>
+      </div>
+    </div>
+    <div id="ansList"></div>
   </section>
 
   <!-- ============ 결과 ============ -->
@@ -242,6 +289,7 @@
       </div>
       <div class="row" style="margin-top:9px">
         <button class="btn ghost sm" id="btnCopyResult">결과 요약 복사</button>
+        <button class="btn ghost sm" id="btnAnsResult">🔒 답안지</button>
         <button class="btn ghost sm" id="btnHome2">처음으로</button>
       </div>
       <div id="resMsg"></div>
@@ -260,13 +308,31 @@
 (function (root) {
   'use strict';
 
+  /* ---------------- 난수 (시드 지정 가능) ----------------
+     시드를 지정하면 같은 링크에서 항상 같은 문제가 나온다.
+     그래야 학생이 푼 시험지와 답안지가 정확히 일치한다. */
+  let _seed = null;
+  function rnd() {
+    if (_seed === null) return Math.random();
+    _seed = (Math.imul(_seed, 1664525) + 1013904223) >>> 0;
+    return _seed / 4294967296;
+  }
+  function setSeed(n) {
+    if (n === null || n === undefined || n === '') { _seed = null; return; }
+    let h = 2166136261 >>> 0;
+    const str = String(n);
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    _seed = h >>> 0;
+    for (let i = 0; i < 12; i++) rnd();          // 초기 상태를 흩어준다
+  }
+
   /* ---------------- 기본 유틸 ---------------- */
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a || 1; }
-  function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }          // 정수 [a,b]
+  function ri(a, b) { return a + Math.floor(rnd() * (b - a + 1)); }          // 정수 [a,b]
   function rnz(a, b) { let v = 0; while (v === 0) v = ri(a, b); return v; }           // 0 제외
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
-  function sign() { return Math.random() < 0.5 ? -1 : 1; }
+  function pick(arr) { return arr[Math.floor(rnd() * arr.length)]; }
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function sign() { return rnd() < 0.5 ? -1 : 1; }
   function uniq(a) { return a.filter((v, i) => a.indexOf(v) === i); }
 
   /* ---------------- 유리수 클래스 ---------------- */
@@ -359,7 +425,7 @@
     let m = ri(2, 9), n = ri(2, 9);
     while (gcd(m, n) !== 1 || m === n) { m = ri(2, 9); n = ri(2, 9); }
     const a = g * m, b = g * n;
-    const askLcm = Math.random() < 0.5;
+    const askLcm = rnd() < 0.5;
     const L = a * b / g;
     return {
       q: '두 자연수 ' + a + '와 ' + b + '의 ' + (askLcm ? '최소공배수' : '최대공약수') + '를 구하시오.',
@@ -482,7 +548,7 @@
   };
 
   G['m1-proportion'] = function (lvl) {
-    const inverse = Math.random() < 0.5;
+    const inverse = rnd() < 0.5;
     if (inverse) {
       const p = ri(2, 9), q = ri(2, 9), a = p * q;
       let r = ri(2, 12); while (r === p) r = ri(2, 12);
@@ -534,7 +600,7 @@
 
   G['m1-sector'] = function (lvl) {
     const r = ri(3, 12), deg = pick([30, 45, 60, 90, 120, 135, 150, 180, 270]);
-    const askArea = Math.random() < 0.5;
+    const askArea = rnd() < 0.5;
     const v = askArea ? new F(r * r * deg, 360) : new F(2 * r * deg, 360);
     return {
       q: '반지름의 길이가 ' + r + ' cm, 중심각의 크기가 ' + deg + '°인 부채꼴의 ' + (askArea ? '넓이' : '호의 길이') +
@@ -570,7 +636,7 @@
     const n = 5, base = ri(50, 90);
     const ds = shuffle([-4, -2, 0, 2, 4]);
     const data = ds.map(d => base + d);
-    const askMedian = Math.random() < 0.4;
+    const askMedian = rnd() < 0.4;
     const sorted = data.slice().sort((a, b) => a - b);
     if (askMedian) return {
       q: '다음 자료의 중앙값을 구하시오.<div class="expr">' + data.join(', ') + '</div>',
@@ -665,7 +731,7 @@
     // a x + b ≤ (a+c)x' ... 간단히: a x + b ≤ k*a + b 형태로 만들지 말고
     // (a)x + b ≤ d  →  x ≤ (d-b)/a
     const d = a * k + b;
-    const flip = Math.random() < 0.5;
+    const flip = rnd() < 0.5;
     if (!flip) {
       return {
         q: '일차부등식 ' + polyStr([[a, X], [b, '']]) + ' ≤ ' + d + ' 를 만족하는 자연수 x의 개수를 구하시오.',
@@ -698,7 +764,7 @@
   };
 
   G['m2-simul-word'] = function (lvl) {
-    if (Math.random() < 0.5) {
+    if (rnd() < 0.5) {
       let a = ri(1, 8), b = ri(1, 9);
       while (b === a) b = ri(1, 9);
       const S = a + b, D = 9 * (b - a), N = 10 * a + b;
@@ -728,7 +794,7 @@
     const a = new F(rnz(-8, 8), pick([1, 1, 1, 2])), b = rnz(-6, 6);
     const y1 = a.mul(x1).add(b), y2 = a.mul(x2).add(b);
     if (!y1.isInt() || !y2.isInt()) return G['m2-linfunc-slope'](lvl);
-    const askB = lvl >= 2 && Math.random() < 0.5;
+    const askB = lvl >= 2 && rnd() < 0.5;
     if (askB) return {
       q: '두 점 (' + x1 + ', ' + y1.html() + '), (' + x2 + ', ' + y2.html() + ') 을 지나는 일차함수 y = ax + b 에서 a + b 의 값을 구하시오.',
       ans: num(a.add(b)),
@@ -744,7 +810,7 @@
 
   G['m2-linfunc-intercept'] = function (lvl) {
     const a = rnz(-6, 6), b = rnz(-12, 12);
-    const askX = Math.random() < 0.6;
+    const askX = rnd() < 0.6;
     const xi = new F(-b, a);
     return {
       q: '일차함수 y = ' + polyStr([[a, X], [b, '']]) + ' 의 ' + (askX ? 'x절편' : 'y절편') + '을 구하시오.',
@@ -757,7 +823,7 @@
   G['m2-linfunc-cond'] = function (lvl) {
     const a = rnz(-5, 5), p = rnz(-6, 6), q = rnz(-9, 9);
     const b = q - a * p;
-    const perp = lvl >= 3 && Math.random() < 0.4;
+    const perp = lvl >= 3 && rnd() < 0.4;
     if (perp) {
       const a2 = new F(-1, a), b2 = new F(q).sub(a2.mul(p));
       return {
@@ -778,7 +844,7 @@
 
   G['m2-similar'] = function (lvl) {
     const m = ri(2, 5); let n = ri(2, 7); while (n === m) n = ri(2, 7);
-    const vol = lvl >= 3 && Math.random() < 0.5;
+    const vol = lvl >= 3 && rnd() < 0.5;
     const S = m * m * ri(1, 6) * (vol ? m : 1);
     if (vol) {
       const V = m * m * m * ri(1, 5);
@@ -803,7 +869,7 @@
     const trip = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29], [9, 12, 15], [6, 8, 10]]);
     const k = ri(1, lvl >= 2 ? 3 : 2);
     const a = trip[0] * k, b = trip[1] * k, c = trip[2] * k;
-    if (Math.random() < 0.5) return {
+    if (rnd() < 0.5) return {
       q: '직각을 낀 두 변의 길이가 ' + a + ' cm, ' + b + ' cm인 직각삼각형의 빗변의 길이를 구하시오.',
       ans: num(c),
       sol: ['c² = ' + a + '² + ' + b + '² = ' + (a * a) + ' + ' + (b * b) + ' = ' + (c * c), 'c = <b>' + c + '</b> cm']
@@ -1033,7 +1099,7 @@
   };
 
   G['m3-quad-word'] = function (lvl) {
-    if (Math.random() < 0.5) {
+    if (rnd() < 0.5) {
       const n = ri(4, 20), N = n * (n + 1);
       return {
         q: '연속하는 두 자연수의 곱이 ' + N + '일 때, 두 수 중 작은 수를 구하시오.',
@@ -1075,7 +1141,7 @@
   };
 
   G['m3-trig'] = function (lvl) {
-    if (lvl >= 3 && Math.random() < 0.5) {
+    if (lvl >= 3 && rnd() < 0.5) {
       // 특수각 조합 (유리수 결과)
       const opts = [
         ['sin 30° + cos 60°', new F(1)],
@@ -1139,7 +1205,7 @@
     const ds = pick([[-2, -1, 0, 1, 2], [-4, -2, 0, 2, 4], [-3, -1, 0, 1, 3], [-2, -2, 0, 2, 2], [-6, -3, 0, 3, 6]]);
     const data = shuffle(ds.map(d => base + d));
     const varr = new F(ds.reduce((a, d) => a + d * d, 0), n);
-    const askVar = Math.random() < 0.6;
+    const askVar = rnd() < 0.6;
     if (askVar) return {
       q: '다음 자료의 분산을 구하시오.<div class="expr">' + data.join(', ') + '</div><div class="note">분수면 예: 26/5 로 입력</div>',
       ans: num(varr),
@@ -1276,7 +1342,7 @@
     return p;
   }
 
-  const API = { F, H, CATALOG, BY_ID, makeProblem, check, answerText, parseNum, parseList, polyStr, gcd };
+  const API = { F, H, CATALOG, BY_ID, makeProblem, check, answerText, parseNum, parseList, polyStr, gcd, rnd, setSeed };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.QGEN = API;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1289,10 +1355,12 @@
   var $ = function(id){ return document.getElementById(id); };
   var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
 
-  var S = { selected:{}, problems:[], idx:0, results:[], count:10, level:2, title:'' };
+  var S = { selected:{}, problems:[], idx:0, results:[], count:10, level:2, title:'',
+            seed:'', run:0, unlocked:false };
+  var ANSWER_PIN = '1213';
 
   function show(v){
-    ['home','select','quiz','result'].forEach(function(k){ $('view-'+k).classList.toggle('hide', k!==v); });
+    ['home','select','quiz','result','answers'].forEach(function(k){ $('view-'+k).classList.toggle('hide', k!==v); });
     window.scrollTo(0,0);
   }
   function msg(el, kind, html){ $(el).innerHTML = html ? '<div class="'+kind+'">'+html+'</div>' : ''; }
@@ -1304,7 +1372,7 @@
     if(/^https?:\/\//i.test(s) && i >= 0) s = s.slice(i+1);
     s = s.replace(/^[#?]+/, '');
     if(!s) return null;
-    var out = { types:{}, n:10, lv:2, title:'' };
+    var out = { types:{}, n:10, lv:2, title:'', seed:'' };
     s.split('&').forEach(function(kv){
       var p = kv.split('='); var k = p[0], v = decodeURIComponent((p[1]||'').replace(/\+/g,' '));
       if(k === 't'){
@@ -1316,6 +1384,7 @@
       else if(k === 'n'){ var n = parseInt(v,10); if(n>=1 && n<=50) out.n = n; }
       else if(k === 'lv'){ var l = parseInt(v,10); if(l>=1 && l<=3) out.lv = l; }
       else if(k === 'title'){ out.title = v.slice(0,60); }
+      else if(k === 's'){ out.seed = v.replace(/[^0-9a-zA-Z_-]/g,'').slice(0,24); }
     });
     return Object.keys(out.types).length ? out : null;
   }
@@ -1323,7 +1392,7 @@
     var t = Object.keys(S.selected).map(function(id){
       var w = S.selected[id]; return w>1 ? id+':'+w : id;
     }).join(',');
-    var c = 't=' + t + '&n=' + S.count + '&lv=' + S.level;
+    var c = 't=' + t + '&n=' + S.count + '&lv=' + S.level + '&s=' + S.seed;
     if(S.title) c += '&title=' + encodeURIComponent(S.title);
     return c;
   }
@@ -1332,6 +1401,7 @@
   function showLinkCard(cfg){
     S.selected = {}; Object.keys(cfg.types).forEach(function(id){ S.selected[id] = cfg.types[id]; });
     S.count = cfg.n; S.level = cfg.lv; S.title = cfg.title;
+    S.seed = cfg.seed || S.seed; S.run = 0; S.problems = [];
     $('linkTitle').textContent = cfg.title || '받은 시험';
     $('linkDesc').textContent = '아래 유형으로 문제가 만들어집니다. 준비되면 시작하세요.';
     $('linkInfo').innerHTML = '<span>' + cfg.n + '문제</span><span>난이도 ' + LEVELNAME[cfg.lv] + '</span><span>유형 ' +
@@ -1346,6 +1416,7 @@
   }
 
   (function initFromUrl(){
+    S.seed = String(Math.floor(Math.random() * 1e9));      // 링크에 시드가 없을 때의 기본값
     var cfg = parseCode(location.hash) || parseCode(location.search);
     if(cfg) showLinkCard(cfg);
     S.upUrl = readParam('up');
@@ -1386,14 +1457,14 @@
   });
 
   $('btnStartLink').addEventListener('click', function(){
-    startQuiz(buildProblems(Object.keys(S.selected), S.count, S.level));
+    startQuiz(currentProblems());
   });
   $('btnCode').addEventListener('click', function(){
     var cfg = parseCode($('codeIn').value);
     if(!cfg){ msg('codeMsg','err','코드를 알아볼 수 없습니다. 받은 링크나 코드를 그대로 붙여넣어 주세요.'); return; }
     msg('codeMsg','','');
     showLinkCard(cfg);
-    startQuiz(buildProblems(Object.keys(S.selected), S.count, S.level));
+    startQuiz(currentProblems());
   });
 
   /* ---------- 유형 선택 ---------- */
@@ -1443,6 +1514,7 @@
   $('btnMakeLink').addEventListener('click', function(){
     if(!Object.keys(S.selected).length){ msg('selMsg','err','유형을 먼저 고르세요.'); return; }
     S.count = parseInt($('count').value,10); S.level = parseInt($('level').value,10);
+    S.seed = String(Math.floor(Math.random() * 1e9)); S.run = 0; S.problems = [];
     var url = location.origin + location.pathname + '#' + buildCode();
     var ta = $('linkOut'); ta.classList.remove('hide'); ta.value = url;
     ta.select();
@@ -1464,20 +1536,36 @@
     msg('selMsg','','');
     S.count = parseInt($('count').value,10);
     S.level = parseInt($('level').value,10);
+    S.problems = [];
     startQuiz(buildProblems(ids, S.count, S.level));
   });
 
+  // 같은 시드 + 같은 설정 => 항상 같은 시험지. 그래야 답안지가 학생 시험지와 일치한다.
   function buildProblems(ids, count, level){
+    Q.setSeed(S.seed + (S.run ? '#' + S.run : ''));
     var pool = [];
-    ids.forEach(function(id){ var w = S.selected[id]||1; for(var i=0;i<w;i++) pool.push(id); });
+    ids.slice().sort().forEach(function(id){ var w = S.selected[id]||1; for(var i=0;i<w;i++) pool.push(id); });
+    var base = ids.slice().sort();
     var out = [], guard = 0;
     while(out.length < count && guard++ < count*20){
-      var id = out.length < ids.length ? ids[out.length] : pool[Math.floor(Math.random()*pool.length)];
+      var id = out.length < base.length ? base[out.length] : pool[Math.floor(Q.rnd()*pool.length)];
       var p = Q.makeProblem(id, level);
       if(p) out.push(p);
     }
-    for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
+    for(var i=out.length-1;i>0;i--){ var j=Math.floor(Q.rnd()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
+    Q.setSeed(null);
+    S.problems = out;
     return out;
+  }
+  // 이미 만들어 둔 시험지가 있으면 그대로 쓴다 (답안지를 먼저 봐도 같은 문제가 나오도록)
+  function currentProblems(){
+    var ids = Object.keys(S.selected);
+    if(!S.problems.length && ids.length) buildProblems(ids, S.count, S.level);
+    return S.problems;
+  }
+  function rebuild(ids){
+    S.run++;
+    return buildProblems(ids, S.count, S.level);
   }
 
   function startQuiz(problems){
@@ -1592,6 +1680,71 @@
     if(S.results.length) finish(); else show('home');
   });
 
+  /* ---------- 답안지 (출제자용) ---------- */
+  var ansFrom = 'home';
+  function openAnswers(from){
+    ansFrom = from || 'home';
+    if(S.unlocked){ renderAnswers(); }
+    else {
+      $('pinCard').classList.remove('hide');
+      $('ansHead').classList.add('hide');
+      $('ansList').innerHTML = '';
+      $('pin').value = ''; msg('pinMsg','','');
+      show('answers');
+      setTimeout(function(){ $('pin').focus(); }, 120);
+    }
+  }
+  $('btnAnsHome').addEventListener('click', function(){ openAnswers('home'); });
+  $('btnAnsQuiz').addEventListener('click', function(){ openAnswers('quiz'); });
+  $('btnAnsResult').addEventListener('click', function(){ openAnswers('result'); });
+  $('btnPinBack').addEventListener('click', function(){ show(ansFrom); });
+  $('btnAnsBack').addEventListener('click', function(){ show(ansFrom); });
+  $('btnPin').addEventListener('click', tryPin);
+  $('pin').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); tryPin(); } });
+  function tryPin(){
+    if($('pin').value.trim() === ANSWER_PIN){
+      S.unlocked = true; msg('pinMsg','','');
+      renderAnswers();
+    } else {
+      msg('pinMsg','err','비밀번호가 맞지 않습니다.');
+      $('pin').value = ''; $('pin').focus();
+    }
+  }
+
+  function renderAnswers(){
+    var list = currentProblems();
+    $('pinCard').classList.add('hide');
+    $('ansHead').classList.remove('hide');
+    $('ansTitle').textContent = '답안지' + (S.title ? ' · ' + S.title : '');
+    $('ansMeta').textContent = list.length + '문제 · 난이도 ' + LEVELNAME[S.level] +
+      ' · 시험지 번호 ' + S.seed + (S.run ? '-' + S.run : '');
+    if(!list.length){
+      $('ansList').innerHTML = '<div class="card"><p class="desc" style="margin:0">' +
+        '아직 시험지가 만들어지지 않았습니다. 먼저 유형을 고르거나 받은 시험 링크로 들어와 주세요.</p></div>';
+      return;
+    }
+    var solved = {};
+    S.results.forEach(function(r, i){ solved[i] = r; });
+    $('ansList').innerHTML = list.map(function(p, i){
+      var a = p.ans, body = p.q;
+      if(a.kind === 'choice'){
+        body += '<div class="choices">' + a.choices.map(function(c, j){
+          return '<div class="ch' + (j === a.idx ? ' showOK' : '') + '"><span class="no">' + (j+1) + '</span><span>' + c + '</span></div>';
+        }).join('') + '</div>';
+      }
+      var mark = '';
+      if(solved[i]) mark = '<div class="st ' + (solved[i].ok ? 'o">⭕ 학생이 맞힘' : 'x">❌ 학생이 틀림') + '</div>';
+      return '<div class="aq">' +
+        '<span class="no">' + (i+1) + '</span><span class="ty">' + esc(p.grade + ' · ' + p.typeName) + '</span>' +
+        '<div class="body">' + body + '</div>' +
+        '<div class="ans">정답 &nbsp;<b>' + Q.answerText(a) + '</b></div>' + mark +
+        '<ol>' + p.sol.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ol>' +
+      '</div>';
+    }).join('');
+    show('answers');
+  }
+  $('btnPrint').addEventListener('click', function(){ window.print(); });
+
   /* ---------- 결과 ---------- */
   function finish(){
     var n = S.results.length, r = S.results.filter(function(x){return x.ok;}).length;
@@ -1625,12 +1778,12 @@
   $('btnRetryWrong').addEventListener('click', function(){
     if(!S.wrongIds || !S.wrongIds.length) return;
     S.selected = {}; S.wrongIds.forEach(function(id){ S.selected[id] = 1; });
-    startQuiz(buildProblems(S.wrongIds, S.count, S.level));
+    startQuiz(rebuild(S.wrongIds));
   });
   $('btnSameAgain').addEventListener('click', function(){
     var ids = Object.keys(S.selected);
     if(!ids.length){ show('home'); return; }
-    startQuiz(buildProblems(ids, S.count, S.level));
+    startQuiz(rebuild(ids));
   });
   $('btnCopyResult').addEventListener('click', function(){
     copy(S.summary, function(ok){
