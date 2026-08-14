@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="오답시험지">
+<meta name="description" content="틀린 유형만 골라 새 문제로 다시 푸는 중등 수학 연습">
+<title>오답 시험지 · 중등 수학</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232f6fed'/><text x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>오</text></svg>">
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#1c2024; --sub:#6b7280; --line:#e5e7eb;
+    --brand:#2f6fed; --brand-d:#1f55c6; --ok:#0f9d58; --okbg:#e9f7ef;
+    --bad:#e5484d; --badbg:#fdeceb;
+    --r:14px; --sh:0 1px 2px rgba(16,24,40,.06), 0 4px 14px rgba(16,24,40,.05);
+    --safeb:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",
+      "Noto Sans KR",Segoe UI,Roboto,sans-serif;
+    font-size:16px; line-height:1.6; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:16px 14px calc(24px + var(--safeb))}
+  header.top{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+  .logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(140deg,var(--brand),#7aa2ff);
+        color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+  header.top h1{font-size:18px;margin:0;font-weight:750;letter-spacing:-.02em}
+  header.top .sub{font-size:12.5px;color:var(--sub);margin-top:-2px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px 16px;margin-bottom:13px;box-shadow:var(--sh)}
+  .card h2{font-size:15.5px;margin:0 0 4px;font-weight:700}
+  .card .desc{font-size:13.5px;color:var(--sub);margin:0 0 14px}
+  .row{display:flex;gap:9px;flex-wrap:wrap}
+  button{font:inherit;cursor:pointer;border-radius:11px;border:1px solid transparent;transition:.12s;touch-action:manipulation}
+  button:disabled{opacity:.5}
+  .btn{background:var(--brand);color:#fff;padding:13px 18px;font-weight:650;border:none;min-height:48px}
+  .btn:active{background:var(--brand-d)}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:active{background:#eef1f6}
+  .btn.sm{padding:9px 13px;font-size:13.5px;min-height:40px}
+  .btn.wide{width:100%}
+  input[type=text],select,textarea{
+    font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);width:100%}
+  textarea{resize:vertical;min-height:74px;line-height:1.45}
+  input:focus,select:focus,textarea:focus{outline:2px solid #cfe0ff;border-color:var(--brand)}
+  label.fld{display:block;font-size:13px;color:var(--sub);margin:0 0 5px;font-weight:600}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .muted{color:var(--sub);font-size:12.5px}
+  .hide{display:none !important}
+
+  .quizinfo{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+  .quizinfo span{background:#eef4ff;color:#1f3f86;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:600}
+  .gradehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 8px}
+  .gradehead h3{margin:0;font-size:14px;font-weight:750}
+  .unit{font-size:12px;color:var(--sub);margin:11px 0 6px;font-weight:600}
+  .types{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;
+        border-radius:999px;padding:9px 14px;font-size:14px;cursor:pointer;user-select:none;min-height:40px}
+  .chip.on{background:#eaf1ff;border-color:var(--brand);color:var(--brand-d);font-weight:650}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:#cbd5e1}
+  .chip.on .dot{background:var(--brand)}
+  .chip .badge{background:var(--brand);color:#fff;border-radius:8px;font-size:11px;padding:1px 6px;font-weight:700}
+
+  .qbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .prog{height:6px;background:#e9ecf1;border-radius:99px;overflow:hidden;flex:1}
+  .prog i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:.25s}
+  .tag{font-size:11.5px;color:var(--sub);background:#f1f3f7;border-radius:6px;padding:3px 8px;font-weight:600;white-space:nowrap}
+  .qtext{font-size:17.5px;line-height:1.8;margin:8px 0 4px;word-break:keep-all}
+  .expr{font-size:22px;text-align:center;margin:16px 0;padding:16px 8px;background:#f8f9fb;border-radius:11px}
+  .expr.sys{line-height:2.1}
+  .note{font-size:12.5px;color:var(--sub);margin-top:8px;text-align:center}
+  .choices{display:grid;gap:9px;margin-top:14px}
+  .ch{display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:#fff;border-radius:12px;
+      padding:15px;font-size:17px;text-align:left;cursor:pointer;width:100%;min-height:56px}
+  .ch .no{width:24px;height:24px;border-radius:50%;background:#eef1f6;display:grid;place-items:center;
+          font-size:12.5px;font-weight:700;color:var(--sub);flex:none}
+  .ch.pickOK,.ch.showOK{border-color:var(--ok);background:var(--okbg)}
+  .ch.pickNO{border-color:var(--bad);background:var(--badbg)}
+  .ansrow{margin-top:14px}
+  .ansrow input{font-size:20px;text-align:center;padding:14px}
+  .keys{display:flex;gap:7px;margin-top:9px;justify-content:center;flex-wrap:wrap}
+  .keys button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font-size:16px;min-width:52px;min-height:44px}
+  .keys button:active{background:#eef1f6}
+  .pairrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .pairrow .pl{font-size:12.5px;color:var(--sub);margin-bottom:4px;font-weight:600;text-align:center}
+  .pairrow input{font-size:19px;text-align:center;padding:13px}
+  .verdict{margin-top:15px;border-radius:12px;padding:14px 15px;font-size:15.5px}
+  .verdict.ok{background:var(--okbg);border:1px solid #bfe6cf}
+  .verdict.no{background:var(--badbg);border:1px solid #f6c9c8}
+  .verdict .h{font-weight:750;margin-bottom:4px}
+  .sol{margin-top:11px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .sol .t{font-size:12px;color:var(--sub);font-weight:700;margin-bottom:7px}
+  .sol ol{margin:0;padding-left:20px}
+  .sol li{margin:5px 0;font-size:15.5px}
+
+  .score{text-align:center;padding:8px 0 2px}
+  .score .n{font-size:46px;font-weight:800;letter-spacing:-.03em}
+  .score .d{color:var(--sub);font-size:14px}
+  table.res{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.res th,table.res td{border-bottom:1px solid var(--line);padding:10px 5px;text-align:left}
+  table.res th{color:var(--sub);font-weight:600;font-size:12px}
+  table.res td.c{text-align:center;white-space:nowrap}
+  .pill{display:inline-block;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:700}
+  .pill.g{background:var(--okbg);color:var(--ok)}
+  .pill.r{background:var(--badbg);color:var(--bad)}
+
+  .fr{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px;line-height:1.15;position:relative;top:-.08em}
+  .fr .fn{border-bottom:1.4px solid currentColor;padding:0 4px 1px}
+  .fr .fd{padding:1px 4px 0}
+  .rad{display:inline-block;border-top:1.3px solid currentColor;padding:1px 3px 0 1px;margin-left:1px}
+  .rad::before{content:"√";border-top:0;margin-left:-1px;display:inline-block;transform:translateY(-1px)}
+  .ov{border-top:1.4px solid currentColor;padding-top:1px}
+  .ov2{border-top:1.2px solid currentColor;padding-top:0}
+  sup{font-size:.72em}
+  .err{background:var(--badbg);border:1px solid #f6c9c8;color:#992e2c;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
+  .info{background:#eef4ff;border:1px solid #cfe0ff;color:#1f3f86;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
+  details summary{cursor:pointer;font-size:13.5px;color:var(--sub);font-weight:600;list-style:none;padding:4px 0}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ "}
+  details[open] summary::before{content:"▾ "}
+  @media (max-width:400px){ .expr{font-size:20px} .grid2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">오</div>
+    <div>
+      <h1>오답 시험지</h1>
+      <div class="sub">중등 수학 · 틀린 유형만 새 문제로 다시 풀기</div>
+    </div>
+  </header>
+
+  <!-- ============ 홈 ============ -->
+  <section id="view-home">
+    <div class="card hide" id="linkCard">
+      <h2 id="linkTitle">받은 시험</h2>
+      <p class="desc" id="linkDesc"></p>
+      <div class="quizinfo" id="linkInfo"></div>
+      <div class="types" id="linkTypes" style="margin-top:12px"></div>
+      <button class="btn wide" id="btnStartLink" style="margin-top:16px">시험 시작하기</button>
+    </div>
+
+    <div class="card" id="pickCard">
+      <h2>직접 골라서 풀기</h2>
+      <p class="desc">연습하고 싶은 유형을 골라 바로 풀 수 있어요. 문제는 풀 때마다 숫자가 새로 만들어집니다.</p>
+      <button class="btn wide" id="btnManual">유형 고르기 →</button>
+      <details style="margin-top:14px">
+        <summary>시험 코드 입력하기</summary>
+        <p class="muted" style="margin:8px 0">받은 코드를 붙여넣고 시작하세요.</p>
+        <textarea id="codeIn" placeholder="t=m3-factor:2,m2-simul:1&amp;n=10&amp;lv=2" spellcheck="false"></textarea>
+        <button class="btn ghost sm" id="btnCode" style="margin-top:9px">코드로 시작</button>
+        <div id="codeMsg"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ 유형 선택 ============ -->
+  <section id="view-select" class="hide">
+    <div class="card">
+      <h2>유형 고르기</h2>
+      <p class="desc">눌러서 선택/해제 <span id="selCount" style="font-weight:700;color:var(--brand-d)"></span></p>
+      <div id="typeList"></div>
+    </div>
+    <div class="card">
+      <h2>시험 설정</h2>
+      <div class="grid2">
+        <div>
+          <label class="fld">문항 수</label>
+          <select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select>
+        </div>
+        <div>
+          <label class="fld">난이도</label>
+          <select id="level"><option value="1">기본</option><option value="2" selected>표준</option><option value="3">심화</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:15px">
+        <button class="btn" id="btnStart">시험 시작</button>
+        <button class="btn ghost" id="btnBackHome">처음으로</button>
+      </div>
+      <div id="selMsg"></div>
+      <details style="margin-top:14px">
+        <summary>이 설정으로 시험 링크 만들기 (출제용)</summary>
+        <p class="muted" style="margin:8px 0">고른 유형·문항 수·난이도가 담긴 링크가 만들어집니다. 카톡으로 보내면 상대방은 누르기만 하면 됩니다.</p>
+        <div class="row">
+          <button class="btn ghost sm" id="btnMakeLink">링크 만들어 복사</button>
+        </div>
+        <textarea id="linkOut" class="hide" style="margin-top:9px" readonly></textarea>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ 시험 ============ -->
+  <section id="view-quiz" class="hide">
+    <div class="card">
+      <div class="qbar">
+        <span class="tag" id="qNo">1 / 10</span>
+        <div class="prog"><i id="progBar" style="width:0%"></i></div>
+        <span class="tag" id="qType"></span>
+      </div>
+      <div class="qtext" id="qText"></div>
+      <div id="answerArea"></div>
+      <div id="verdictArea"></div>
+      <div class="row" style="margin-top:15px">
+        <button class="btn wide hide" id="btnSubmit">채점하기</button>
+        <button class="btn wide hide" id="btnNext">다음 문제 →</button>
+      </div>
+      <div class="row" style="margin-top:9px">
+        <button class="btn ghost sm hide" id="btnMore">이 유형 한 문제 더</button>
+        <button class="btn ghost sm" id="btnQuit">그만두기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 결과 ============ -->
+  <section id="view-result" class="hide">
+    <div class="card">
+      <div class="score">
+        <div class="n" id="scoreN">0점</div>
+        <div class="d" id="scoreD"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>유형별 결과</h2>
+      <table class="res" id="resTable"></table>
+    </div>
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="btnRetryWrong">틀린 유형만 다시 풀기</button>
+        <button class="btn ghost" id="btnSameAgain">새 문제로 다시</button>
+      </div>
+      <div class="row" style="margin-top:9px">
+        <button class="btn ghost sm" id="btnCopyResult">결과 요약 복사</button>
+        <button class="btn ghost sm" id="btnHome2">처음으로</button>
+      </div>
+      <div id="resMsg"></div>
+    </div>
+  </section>
+
+  <p class="muted" style="text-align:center;margin-top:18px">문제·정답·풀이는 이 페이지 안에서 직접 만들어집니다. 인터넷이 끊겨도 계속 풀 수 있어요.</p>
+</div>
+
+<script>
+/* ================= 문제 생성 엔진 ================= */
+/* =====================================================================
+   오답 시험지 생성기 - 문제 생성 엔진 (중등 수학)
+   순수 JS. 브라우저/Node 양쪽에서 동작.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  /* ---------------- 기본 유틸 ---------------- */
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a || 1; }
+  function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }          // 정수 [a,b]
+  function rnz(a, b) { let v = 0; while (v === 0) v = ri(a, b); return v; }           // 0 제외
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function sign() { return Math.random() < 0.5 ? -1 : 1; }
+  function uniq(a) { return a.filter((v, i) => a.indexOf(v) === i); }
+
+  /* ---------------- 유리수 클래스 ---------------- */
+  function F(n, d) {
+    if (!(this instanceof F)) return new F(n, d);
+    if (d === undefined) d = 1;
+    if (d === 0) throw new Error('0으로 나눔');
+    if (d < 0) { n = -n; d = -d; }
+    const g = gcd(n, d);
+    this.n = n / g; this.d = d / g;
+  }
+  F.prototype.add = function (o) { o = F.of(o); return new F(this.n * o.d + o.n * this.d, this.d * o.d); };
+  F.prototype.sub = function (o) { o = F.of(o); return new F(this.n * o.d - o.n * this.d, this.d * o.d); };
+  F.prototype.mul = function (o) { o = F.of(o); return new F(this.n * o.n, this.d * o.d); };
+  F.prototype.div = function (o) { o = F.of(o); return new F(this.n * o.d, this.d * o.n); };
+  F.prototype.neg = function () { return new F(-this.n, this.d); };
+  F.prototype.eq = function (o) { o = F.of(o); return this.n === o.n && this.d === o.d; };
+  F.prototype.val = function () { return this.n / this.d; };
+  F.prototype.isInt = function () { return this.d === 1; };
+  F.prototype.toString = function () { return this.d === 1 ? String(this.n) : this.n + '/' + this.d; };
+  F.prototype.html = function () {
+    if (this.d === 1) return String(this.n);
+    const s = this.n < 0 ? '&minus;' : '';
+    return s + H.f(Math.abs(this.n), this.d);
+  };
+  F.of = function (x) { return x instanceof F ? x : new F(x); };
+
+  /* ---------------- HTML 수식 헬퍼 ---------------- */
+  const H = {
+    f: (n, d) => '<span class="fr"><span class="fn">' + n + '</span><span class="fd">' + d + '</span></span>',
+    p: (b, e) => b + '<sup>' + e + '</sup>',
+    rad: (x) => '<span class="rad">' + x + '</span>',
+    pi: 'π'
+  };
+
+  // 다항식 문자열: terms = [[계수, 변수HTML], ...]
+  function polyStr(terms) {
+    let s = '';
+    for (const t of terms) {
+      const c = t[0], v = t[1] || '';
+      if (c === 0) continue;
+      const a = Math.abs(c);
+      const piece = (a === 1 && v) ? v : (a + v);
+      if (s === '') s = (c < 0 ? '&minus;' : '') + piece;
+      else s += (c < 0 ? ' &minus; ' : ' + ') + piece;
+    }
+    return s === '' ? '0' : s;
+  }
+  const X2 = 'x<sup>2</sup>', X = 'x', Y = 'y';
+  // (계수 c)와 변수를 붙인 단항 (부호 포함, 앞에 오는 항용)
+  function mono(c, v) { return polyStr([[c, v]]); }
+  // 괄호 안 이항: (ax + b)
+  function bin(a, b, v) { return '(' + polyStr([[a, v || 'x'], [b, '']]) + ')'; }
+
+  /* ---------------- 보기(객관식) 만들기 ---------------- */
+  function choice(correct, wrongs) {
+    const w = uniq(wrongs.filter(x => x && x !== correct)).slice(0, 3);
+    // 오답 보기가 3개 미만이면(= 우연히 정답과 같아짐) 문제를 다시 만들도록 예외를 던진다.
+    if (w.length < 3) throw new Error('보기 부족');
+    const all = shuffle([correct].concat(w));
+    return { kind: 'choice', choices: all, idx: all.indexOf(correct) };
+  }
+  const num = (v) => ({ kind: 'num', val: F.of(v) });
+  const set = (vs) => ({ kind: 'set', vals: vs.map(F.of) });
+  const pair = (a, b, la, lb) => ({ kind: 'pair', vals: [F.of(a), F.of(b)], labels: [la || 'x', lb || 'y'] });
+
+  /* =====================================================================
+     유형별 생성기
+     각 생성기: fn(lvl) -> {q, ans, sol:[...]}   (lvl: 1 기본 / 2 표준 / 3 심화)
+     ===================================================================== */
+  const G = {};
+
+  /* ---------- 중1 ---------- */
+
+  G['m1-divisor'] = function (lvl) {
+    const ps = shuffle([2, 3, 5, 7]).slice(0, lvl >= 3 ? 3 : 2);
+    const es = ps.map(() => ri(1, lvl >= 2 ? 3 : 2));
+    let N = 1; ps.forEach((p, i) => { N *= Math.pow(p, es[i]); });
+    const cnt = es.reduce((a, e) => a * (e + 1), 1);
+    const fs = ps.map((p, i) => es[i] === 1 ? String(p) : H.p(p, es[i])).join(' × ');
+    return {
+      q: N + '의 약수의 개수를 구하시오.',
+      ans: num(cnt),
+      sol: [N + ' = ' + fs, '약수의 개수 = ' + es.map(e => '(' + e + '+1)').join(' × ') + ' = <b>' + cnt + '</b>']
+    };
+  };
+
+  G['m1-gcdlcm'] = function (lvl) {
+    const g = pick(lvl >= 2 ? [4, 6, 8, 9, 12] : [2, 3, 4, 6]);
+    let m = ri(2, 9), n = ri(2, 9);
+    while (gcd(m, n) !== 1 || m === n) { m = ri(2, 9); n = ri(2, 9); }
+    const a = g * m, b = g * n;
+    const askLcm = Math.random() < 0.5;
+    const L = a * b / g;
+    return {
+      q: '두 자연수 ' + a + '와 ' + b + '의 ' + (askLcm ? '최소공배수' : '최대공약수') + '를 구하시오.',
+      ans: num(askLcm ? L : g),
+      sol: [a + ' = ' + g + ' × ' + m + ',  ' + b + ' = ' + g + ' × ' + n,
+      '최대공약수 = ' + g + ',  최소공배수 = ' + g + ' × ' + m + ' × ' + n + ' = ' + L,
+      '답: <b>' + (askLcm ? L : g) + '</b>']
+    };
+  };
+
+  G['m1-intcalc'] = function (lvl) {
+    if (lvl >= 3) {
+      // 유리수 사칙연산 (기약분수만 사용)
+      const pf = () => { let n, d; do { n = rnz(-9, 9); d = ri(2, 6); } while (gcd(Math.abs(n), d) !== 1); return [n, d]; };
+      const [a, b] = pf(), [c, d] = pf(), [e, f] = pf();
+      const v = new F(a, b).mul(new F(c, d)).add(new F(e, f));
+      const sgn = (F1) => F1.n < 0 ? '(' + F1.html() + ')' : F1.html();
+      const t1 = (a < 0 ? '&minus;' : '') + H.f(Math.abs(a), b);
+      const t2 = (c < 0 ? '(&minus;' : '') + H.f(Math.abs(c), d) + (c < 0 ? ')' : '');
+      const t3 = (e < 0 ? '(&minus;' : '') + H.f(Math.abs(e), f) + (e < 0 ? ')' : '');
+      return {
+        q: '다음을 계산하시오.<div class="expr">' + t1 + ' × ' + t2 + ' + ' + t3 + '</div>',
+        ans: num(v),
+        sol: ['앞의 곱: ' + t1 + ' × ' + t2 + ' = ' + new F(a, b).mul(new F(c, d)).html(),
+        '더하기: ' + sgn(new F(a, b).mul(new F(c, d))) + ' + ' + sgn(new F(e, f)) + ' = <b>' + v.html() + '</b>']
+      };
+    }
+    const a = ri(2, 5), m = pick([2, 3]), b = rnz(-6, 6), c = rnz(-6, 6), f = ri(2, 6), e = rnz(-5, 5);
+    const d = f * Math.abs(e);
+    const p1 = Math.pow(-a, m);
+    const p2 = b * c;
+    const p3 = (e < 0 ? -1 : 1) * f * (e < 0 ? -1 : 1); // d ÷ e = f * sign
+    const dv = d / e;
+    const v = p1 + p2 - dv;
+    return {
+      q: '다음을 계산하시오.<div class="expr">' + H.p('(-' + a + ')', m) + ' + ' + b + ' × ' +
+        (c < 0 ? '(' + c + ')' : c) + ' &minus; ' + d + ' ÷ ' + (e < 0 ? '(' + e + ')' : e) + '</div>',
+      ans: num(v),
+      sol: [H.p('(-' + a + ')', m) + ' = ' + p1,
+      b + ' × ' + c + ' = ' + p2,
+      d + ' ÷ ' + e + ' = ' + dv,
+      p1 + ' + (' + p2 + ') &minus; (' + dv + ') = <b>' + v + '</b>']
+    };
+  };
+
+  G['m1-linexpr'] = function (lvl) {
+    const a = ri(2, lvl >= 2 ? 6 : 4), b = ri(2, 5), c = rnz(-6, 6);
+    const d = ri(2, lvl >= 2 ? 6 : 4), e = ri(2, 5), f = rnz(-6, 6);
+    const cx = a * b - d * e, cc = a * c - d * f;
+    const correct = polyStr([[cx, X], [cc, '']]);
+    const wrongs = [
+      polyStr([[a * b + d * e, X], [a * c + d * f, '']]),
+      polyStr([[cx, X], [a * c + d * f, '']]),
+      polyStr([[a * b - d * e, X], [c - f, '']]),
+      polyStr([[a * b - e, X], [cc, '']])
+    ];
+    return {
+      q: '다음 식을 간단히 하시오.<div class="expr">' + a + bin(b, c) + ' &minus; ' + d + bin(e, f) + '</div>',
+      ans: choice(correct, wrongs),
+      sol: [a + bin(b, c) + ' = ' + polyStr([[a * b, X], [a * c, '']]),
+      d + bin(e, f) + ' = ' + polyStr([[d * e, X], [d * f, '']]),
+      '빼면 <b>' + correct + '</b>']
+    };
+  };
+
+  G['m1-lineq'] = function (lvl) {
+    if (lvl >= 3) {
+      let p = ri(2, 5), q = ri(2, 5);
+      while (p === q) q = ri(2, 6);
+      const a = rnz(-5, 5), b = rnz(-5, 5), r = rnz(-12, 12);
+      // p(x+a) - q(x-b) = r  →  (p-q)x + pa + qb = r
+      const x = new F(r - p * a - q * b, p - q);
+      return {
+        q: '일차방정식을 푸시오.<div class="expr">' + p + bin(1, a) + ' &minus; ' + q + bin(1, -b) + ' = ' + r + '</div>',
+        ans: num(x),
+        sol: ['괄호를 풀면 ' + polyStr([[p - q, X], [p * a + q * b, '']]) + ' = ' + r,
+        polyStr([[p - q, X]]) + ' = ' + (r - p * a - q * b),
+        'x = <b>' + x.html() + '</b>']
+      };
+    }
+    let a = rnz(-6, 6), c = rnz(-6, 6);
+    while (a === c) c = rnz(-6, 6);
+    const x0 = rnz(-6, 6), b = rnz(-9, 9);
+    const d = (a - c) * x0 + b;
+    const x = new F(d - b, a - c);
+    return {
+      q: '일차방정식을 푸시오.<div class="expr">' + polyStr([[a, X], [b, '']]) + ' = ' + polyStr([[c, X], [d, '']]) + '</div>',
+      ans: num(x),
+      sol: ['x항은 좌변, 상수항은 우변으로: ' + polyStr([[a - c, X]]) + ' = ' + (d - b),
+      'x = ' + (d - b) + ' ÷ ' + (a - c) + ' = <b>' + x.html() + '</b>']
+    };
+  };
+
+  G['m1-lineq-word'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const m = ri(5, 40), S = 3 * m;
+      return {
+        q: '연속하는 세 자연수의 합이 ' + S + '일 때, 가장 작은 수를 구하시오.',
+        ans: num(m - 1),
+        sol: ['가운데 수를 x라 하면 (x-1) + x + (x+1) = 3x = ' + S, 'x = ' + m + ' 이므로 가장 작은 수는 <b>' + (m - 1) + '</b>']
+      };
+    }
+    if (t === 2) {
+      const A = ri(8, 15), k = ri(2, 3), tt = ri(3, 12), Fa = k * (A + tt) - tt;
+      return {
+        q: '현재 아버지의 나이는 ' + Fa + '살, 아들의 나이는 ' + A + '살이다. 아버지의 나이가 아들의 나이의 ' + k + '배가 되는 것은 몇 년 후인가?',
+        ans: num(tt),
+        sol: ['x년 후라 하면 ' + Fa + ' + x = ' + k + '(' + A + ' + x)',
+          Fa + ' + x = ' + (k * A) + ' + ' + k + 'x  →  ' + (k - 1) + 'x = ' + (Fa - k * A),
+        'x = <b>' + tt + '</b>년 후']
+      };
+    }
+    const x = ri(3, 20), a = ri(2, 12), b = ri(2, 6), c = b * (x + a);
+    return {
+      q: '어떤 수에 ' + a + '을(를) 더한 후 ' + b + '배 하였더니 ' + c + '이(가) 되었다. 어떤 수를 구하시오.',
+      ans: num(x),
+      sol: ['어떤 수를 x라 하면 ' + b + '(x + ' + a + ') = ' + c, 'x + ' + a + ' = ' + (c / b), 'x = <b>' + x + '</b>']
+    };
+  };
+
+  G['m1-proportion'] = function (lvl) {
+    const inverse = Math.random() < 0.5;
+    if (inverse) {
+      const p = ri(2, 9), q = ri(2, 9), a = p * q;
+      let r = ri(2, 12); while (r === p) r = ri(2, 12);
+      const y = new F(a, r);
+      return {
+        q: 'y가 x에 반비례하고, x = ' + p + '일 때 y = ' + q + '이다. x = ' + r + '일 때 y의 값을 구하시오.',
+        ans: num(y),
+        sol: ['y = ' + H.f('a', 'x') + ' 로 놓으면 a = ' + p + ' × ' + q + ' = ' + a,
+        'x = ' + r + ' 이면 y = ' + H.f(a, r) + ' = <b>' + y.html() + '</b>']
+      };
+    }
+    const p = ri(2, 8), a0 = rnz(-6, 6), q = a0 * p, r = rnz(-9, 9);
+    const y = new F(a0 * r);
+    return {
+      q: 'y가 x에 정비례하고, x = ' + p + '일 때 y = ' + q + '이다. x = ' + r + '일 때 y의 값을 구하시오.',
+      ans: num(y),
+      sol: ['y = ax 로 놓으면 ' + q + ' = a × ' + p + ' → a = ' + a0,
+      'y = ' + a0 + 'x 이므로 x = ' + r + '일 때 y = <b>' + y.html() + '</b>']
+    };
+  };
+
+  G['m1-angle'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const A = ri(30, 80), B = ri(30, 80);
+      return {
+        q: '삼각형 ABC에서 ∠A = ' + A + '°, ∠B = ' + B + '°일 때, 꼭짓점 C에서의 외각의 크기를 구하시오. (단위 없이 숫자만)',
+        ans: num(A + B),
+        sol: ['삼각형의 한 외각의 크기는 그와 이웃하지 않는 두 내각의 합과 같다.',
+        '∠A + ∠B = ' + A + ' + ' + B + ' = <b>' + (A + B) + '</b>°']
+      };
+    }
+    if (t === 2) {
+      const k = ri(2, 5), c = ri(10, 60), x = new F(180 - c, k);
+      return {
+        q: '한 직선 위에서 ' + k + 'x° 와 ' + c + '° 인 두 각이 이웃하여 일직선을 이룬다. x의 값을 구하시오.',
+        ans: num(x),
+        sol: [k + 'x + ' + c + ' = 180', k + 'x = ' + (180 - c), 'x = <b>' + x.html() + '</b>']
+      };
+    }
+    const a = ri(40, 130);
+    return {
+      q: '두 직선 l, m 이 평행할 때, 한 동위각의 크기가 ' + a + '°이다. 이 각의 엇각과 이웃한 각(즉 그 각의 보각)의 크기를 구하시오. (숫자만)',
+      ans: num(180 - a),
+      sol: ['평행선에서 동위각·엇각의 크기는 같으므로 엇각도 ' + a + '°',
+      '보각 = 180 &minus; ' + a + ' = <b>' + (180 - a) + '</b>°']
+    };
+  };
+
+  G['m1-sector'] = function (lvl) {
+    const r = ri(3, 12), deg = pick([30, 45, 60, 90, 120, 135, 150, 180, 270]);
+    const askArea = Math.random() < 0.5;
+    const v = askArea ? new F(r * r * deg, 360) : new F(2 * r * deg, 360);
+    return {
+      q: '반지름의 길이가 ' + r + ' cm, 중심각의 크기가 ' + deg + '°인 부채꼴의 ' + (askArea ? '넓이' : '호의 길이') +
+        '를 구하시오.<div class="note">답은 π의 계수만 입력 (예: 6π → 6)</div>',
+      ans: num(v),
+      sol: [askArea ? ('넓이 = π' + H.p('r', 2) + ' × ' + H.f(deg, 360) + ' = π × ' + (r * r) + ' × ' + H.f(deg, 360))
+        : ('호의 길이 = 2πr × ' + H.f(deg, 360) + ' = 2π × ' + r + ' × ' + H.f(deg, 360)),
+      '= <b>' + v.html() + 'π</b>']
+    };
+  };
+
+  G['m1-solid'] = function (lvl) {
+    const t = ri(1, 3), r = ri(2, 8), h = ri(3, 12);
+    if (t === 1) return {
+      q: '밑면의 반지름이 ' + r + ' cm, 높이가 ' + h + ' cm인 원기둥의 부피를 구하시오.<div class="note">답은 π의 계수만 입력</div>',
+      ans: num(r * r * h),
+      sol: ['V = π' + H.p('r', 2) + 'h = π × ' + (r * r) + ' × ' + h + ' = <b>' + (r * r * h) + 'π</b>']
+    };
+    if (t === 2) return {
+      q: '밑면의 반지름이 ' + r + ' cm, 높이가 ' + (3 * h) + ' cm인 원뿔의 부피를 구하시오.<div class="note">답은 π의 계수만 입력</div>',
+      ans: num(r * r * h),
+      sol: ['V = ' + H.f(1, 3) + 'π' + H.p('r', 2) + 'h = ' + H.f(1, 3) + 'π × ' + (r * r) + ' × ' + (3 * h) + ' = <b>' + (r * r * h) + 'π</b>']
+    };
+    const v = new F(4 * r * r * r, 3);
+    return {
+      q: '반지름이 ' + r + ' cm인 구의 부피를 구하시오.<div class="note">답은 π의 계수만 입력 (분수 가능, 예: 32/3)</div>',
+      ans: num(v),
+      sol: ['V = ' + H.f(4, 3) + 'π' + H.p('r', 3) + ' = ' + H.f(4, 3) + 'π × ' + (r * r * r) + ' = <b>' + v.html() + 'π</b>']
+    };
+  };
+
+  G['m1-stat'] = function (lvl) {
+    const n = 5, base = ri(50, 90);
+    const ds = shuffle([-4, -2, 0, 2, 4]);
+    const data = ds.map(d => base + d);
+    const askMedian = Math.random() < 0.4;
+    const sorted = data.slice().sort((a, b) => a - b);
+    if (askMedian) return {
+      q: '다음 자료의 중앙값을 구하시오.<div class="expr">' + data.join(', ') + '</div>',
+      ans: num(sorted[2]),
+      sol: ['크기순: ' + sorted.join(', '), '가운데 값 = <b>' + sorted[2] + '</b>']
+    };
+    // 평균이 m일 때 미지수 구하기
+    if (lvl >= 2) {
+      const hidden = data[ri(0, 4)];
+      const shown = data.map(v => v === hidden ? 'x' : v);
+      return {
+        q: '다음 5개 자료의 평균이 ' + base + '일 때, x의 값을 구하시오.<div class="expr">' + shown.join(', ') + '</div>',
+        ans: num(hidden),
+        sol: ['(자료의 총합) = ' + base + ' × 5 = ' + (base * 5),
+        'x = ' + (base * 5) + ' &minus; ' + (base * 5 - hidden) + ' = <b>' + hidden + '</b>']
+      };
+    }
+    return {
+      q: '다음 자료의 평균을 구하시오.<div class="expr">' + data.join(', ') + '</div>',
+      ans: num(base),
+      sol: ['합 = ' + data.reduce((a, b) => a + b, 0), '평균 = ' + (base * 5) + ' ÷ 5 = <b>' + base + '</b>']
+    };
+  };
+
+  /* ---------- 중2 ---------- */
+
+  G['m2-recurring'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const a = ri(1, 9), v = new F(a, 9);
+      return {
+        q: '순환소수 0.<span class="ov">' + a + '</span> 를 기약분수로 나타내시오.<div class="note">예: 3/7 형식으로 입력</div>',
+        ans: num(v),
+        sol: ['x = 0.' + a + a + a + '…, 10x = ' + a + '.' + a + a + '…', '9x = ' + a + ' → x = <b>' + v.html() + '</b>']
+      };
+    }
+    if (t === 2) {
+      let ab = ri(10, 98); if (ab % 11 === 0) ab++;
+      const v = new F(ab, 99);
+      return {
+        q: '순환소수 0.<span class="ov">' + ab + '</span> 를 기약분수로 나타내시오.<div class="note">예: 3/7 형식으로 입력</div>',
+        ans: num(v),
+        sol: ['x = 0.' + ab + ab + '…, 100x = ' + ab + '.' + ab + '…', '99x = ' + ab + ' → x = <b>' + v.html() + '</b>']
+      };
+    }
+    const a = ri(1, 9), b = ri(1, 9), v = new F(10 * a + b - a, 90);
+    return {
+      q: '순환소수 0.' + a + '<span class="ov">' + b + '</span> 를 기약분수로 나타내시오.<div class="note">예: 3/7 형식으로 입력</div>',
+      ans: num(v),
+      sol: ['x = 0.' + a + b + b + '…, 100x = ' + a + b + '.' + b + '…, 10x = ' + a + '.' + b + '…',
+      '90x = ' + (10 * a + b) + ' &minus; ' + a + ' = ' + (10 * a + b - a), 'x = <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['m2-exponent'] = function (lvl) {
+    const a = ri(2, 4), c = ri(2, 3), b = ri(2, 4), p = ri(1, 3), q = ri(1, 3), d = ri(1, 3);
+    // (a x^p y^q)^c × (b x^d) = a^c*b x^(pc+d) y^(qc)
+    const co = Math.pow(a, c) * b, ex = p * c + d, ey = q * c;
+    const V = (e) => e === 1 ? '' : '<sup>' + e + '</sup>';
+    const mk = (C, EX, EY) => (C === 1 ? '' : C) + 'x' + V(EX) + 'y' + V(EY);
+    const correct = mk(co, ex, ey);
+    const wrongs = [mk(a * c * b, ex, ey), mk(co, p + c + d, q + c), mk(co, p * c * d, q * c), mk(Math.pow(a, c) + b, ex, ey)];
+    return {
+      q: '다음 식을 간단히 하시오.<div class="expr">(' + (a === 1 ? '' : a) + 'x' + V(p) + 'y' + V(q) + ')<sup>' + c + '</sup> × (' + (b === 1 ? '' : b) + 'x' + V(d) + ')</div>',
+      ans: choice(correct, wrongs),
+      sol: ['(' + a + 'x' + V(p) + 'y' + V(q) + ')<sup>' + c + '</sup> = ' + Math.pow(a, c) + 'x' + V(p * c) + 'y' + V(q * c),
+      '× ' + b + 'x' + V(d) + ' → 계수 ' + Math.pow(a, c) + '×' + b + ' = ' + co + ', x의 지수 ' + (p * c) + '+' + d + ' = ' + ex,
+      '답: <b>' + correct + '</b>']
+    };
+  };
+
+  G['m2-poly'] = function (lvl) {
+    const A = ri(2, 5), B = ri(2, 5), a = rnz(-5, 5), b = rnz(-5, 5), c = rnz(-5, 5), d = rnz(-5, 5);
+    // A(a x + b y) - B(c x + d y)
+    const cx = A * a - B * c, cy = A * b - B * d;
+    const correct = polyStr([[cx, X], [cy, Y]]);
+    const wrongs = [polyStr([[A * a + B * c, X], [A * b + B * d, Y]]),
+    polyStr([[cx, X], [A * b + B * d, Y]]),
+    polyStr([[A * a - c, X], [A * b - d, Y]]),
+    polyStr([[cy, X], [cx, Y]])];
+    return {
+      q: '다음 식을 간단히 하시오.<div class="expr">' + A + '(' + polyStr([[a, X], [b, Y]]) + ') &minus; ' + B + '(' + polyStr([[c, X], [d, Y]]) + ')</div>',
+      ans: choice(correct, wrongs),
+      sol: ['각 괄호를 전개: ' + polyStr([[A * a, X], [A * b, Y]]) + ' &minus; (' + polyStr([[B * c, X], [B * d, Y]]) + ')',
+      '동류항끼리 계산 → <b>' + correct + '</b>']
+    };
+  };
+
+  G['m2-ineq'] = function (lvl) {
+    const a = ri(2, 6), c = ri(1, 5), k = ri(2, 9);
+    const b = rnz(-9, 9);
+    // a x + b ≤ (a+c)x' ... 간단히: a x + b ≤ k*a + b 형태로 만들지 말고
+    // (a)x + b ≤ d  →  x ≤ (d-b)/a
+    const d = a * k + b;
+    const flip = Math.random() < 0.5;
+    if (!flip) {
+      return {
+        q: '일차부등식 ' + polyStr([[a, X], [b, '']]) + ' ≤ ' + d + ' 를 만족하는 자연수 x의 개수를 구하시오.',
+        ans: num(k),
+        sol: [polyStr([[a, X]]) + ' ≤ ' + (d - b) + ' → x ≤ ' + k,
+        '자연수 x = 1, 2, …, ' + k + ' 이므로 <b>' + k + '</b>개']
+      };
+    }
+    const d2 = -a * k + b;
+    return {
+      q: '일차부등식 ' + polyStr([[-a, X], [b, '']]) + ' ≥ ' + d2 + ' 를 만족하는 자연수 x의 개수를 구하시오.',
+      ans: num(k),
+      sol: [polyStr([[-a, X]]) + ' ≥ ' + (d2 - b),
+      '양변을 &minus;' + a + '로 나누면 부등호 방향이 바뀐다 → x ≤ ' + k,
+      '자연수는 1부터 ' + k + '까지 <b>' + k + '</b>개']
+    };
+  };
+
+  G['m2-simul'] = function (lvl) {
+    const x0 = rnz(-6, 6), y0 = rnz(-6, 6);
+    let a1 = rnz(-5, 5), b1 = rnz(-5, 5), a2 = rnz(-5, 5), b2 = rnz(-5, 5);
+    while (a1 * b2 - a2 * b1 === 0) { a2 = rnz(-5, 5); b2 = rnz(-5, 5); }
+    const c1 = a1 * x0 + b1 * y0, c2 = a2 * x0 + b2 * y0;
+    return {
+      q: '연립방정식을 푸시오.<div class="expr sys">' + polyStr([[a1, X], [b1, Y]]) + ' = ' + c1 + '<br>' +
+        polyStr([[a2, X], [b2, Y]]) + ' = ' + c2 + '</div><div class="note">x, y 값을 각각 입력</div>',
+      ans: pair(x0, y0),
+      sol: ['가감법으로 y를 소거하면 x = ' + x0, '대입하면 y = ' + y0, '답: <b>x = ' + x0 + ', y = ' + y0 + '</b>']
+    };
+  };
+
+  G['m2-simul-word'] = function (lvl) {
+    if (Math.random() < 0.5) {
+      let a = ri(1, 8), b = ri(1, 9);
+      while (b === a) b = ri(1, 9);
+      const S = a + b, D = 9 * (b - a), N = 10 * a + b;
+      return {
+        q: '두 자리의 자연수가 있다. 각 자리의 숫자의 합은 ' + S + '이고, 십의 자리와 일의 자리 숫자를 바꾼 수는 처음 수보다 ' +
+          (D >= 0 ? D + ' 크다' : (-D) + ' 작다') + '. 처음 수를 구하시오.',
+        ans: num(N),
+        sol: ['십의 자리를 a, 일의 자리를 b라 하면 a + b = ' + S,
+        '(10b + a) &minus; (10a + b) = 9(b &minus; a) = ' + D + ' → b &minus; a = ' + (D / 9),
+        'a = ' + a + ', b = ' + b + ' 이므로 처음 수는 <b>' + N + '</b>']
+      };
+    }
+    const x = ri(3, 12), y = ri(3, 12), p = pick([500, 800, 1000, 1200]), q = pick([1500, 2000, 2500]);
+    const n = x + y, T = p * x + q * y;
+    return {
+      q: '한 개에 ' + p + '원인 사과와 한 개에 ' + q + '원인 배를 합하여 ' + n + '개 샀더니 전체 금액이 ' + T +
+        '원이었다. 산 사과의 개수를 구하시오.',
+      ans: num(x),
+      sol: ['사과 x개, 배 y개라 하면 x + y = ' + n, p + 'x + ' + q + 'y = ' + T,
+      'y = ' + n + ' &minus; x 를 대입하여 풀면 x = <b>' + x + '</b>']
+    };
+  };
+
+  G['m2-linfunc-slope'] = function (lvl) {
+    let x1 = rnz(-6, 6), x2 = rnz(-6, 6);
+    while (x1 === x2) x2 = rnz(-6, 6);
+    const a = new F(rnz(-8, 8), pick([1, 1, 1, 2])), b = rnz(-6, 6);
+    const y1 = a.mul(x1).add(b), y2 = a.mul(x2).add(b);
+    if (!y1.isInt() || !y2.isInt()) return G['m2-linfunc-slope'](lvl);
+    const askB = lvl >= 2 && Math.random() < 0.5;
+    if (askB) return {
+      q: '두 점 (' + x1 + ', ' + y1.html() + '), (' + x2 + ', ' + y2.html() + ') 을 지나는 일차함수 y = ax + b 에서 a + b 의 값을 구하시오.',
+      ans: num(a.add(b)),
+      sol: ['a = ' + H.f('(y의 증가량)', '(x의 증가량)') + ' = ' + a.html(),
+      'b = ' + b, 'a + b = <b>' + a.add(b).html() + '</b>']
+    };
+    return {
+      q: '두 점 (' + x1 + ', ' + y1.html() + '), (' + x2 + ', ' + y2.html() + ') 을 지나는 직선의 기울기를 구하시오.',
+      ans: num(a),
+      sol: ['기울기 = ' + H.f(y2.html() + ' &minus; (' + y1.html() + ')', x2 + ' &minus; (' + x1 + ')') + ' = <b>' + a.html() + '</b>']
+    };
+  };
+
+  G['m2-linfunc-intercept'] = function (lvl) {
+    const a = rnz(-6, 6), b = rnz(-12, 12);
+    const askX = Math.random() < 0.6;
+    const xi = new F(-b, a);
+    return {
+      q: '일차함수 y = ' + polyStr([[a, X], [b, '']]) + ' 의 ' + (askX ? 'x절편' : 'y절편') + '을 구하시오.',
+      ans: num(askX ? xi : new F(b)),
+      sol: askX ? ['y = 0을 대입: ' + polyStr([[a, X], [b, '']]) + ' = 0', 'x = <b>' + xi.html() + '</b>']
+        : ['x = 0을 대입하면 y = <b>' + b + '</b>']
+    };
+  };
+
+  G['m2-linfunc-cond'] = function (lvl) {
+    const a = rnz(-5, 5), p = rnz(-6, 6), q = rnz(-9, 9);
+    const b = q - a * p;
+    const perp = lvl >= 3 && Math.random() < 0.4;
+    if (perp) {
+      const a2 = new F(-1, a), b2 = new F(q).sub(a2.mul(p));
+      return {
+        q: '직선 y = ' + polyStr([[a, X], [rnz(-5, 5), '']]) + ' 에 수직이고 점 (' + p + ', ' + q + ') 를 지나는 직선의 y절편을 구하시오.',
+        ans: num(b2),
+        sol: ['수직이면 기울기의 곱이 &minus;1 이므로 기울기는 ' + a2.html(),
+        'y = ' + a2.html() + 'x + b 에 (' + p + ', ' + q + ') 대입',
+        'b = <b>' + b2.html() + '</b>']
+      };
+    }
+    return {
+      q: '직선 y = ' + polyStr([[a, X], [rnz(-5, 5), '']]) + ' 와 평행하고 점 (' + p + ', ' + q + ') 를 지나는 직선의 y절편을 구하시오.',
+      ans: num(b),
+      sol: ['평행하므로 기울기는 ' + a, 'y = ' + a + 'x + b 에 (' + p + ', ' + q + ') 대입: ' + q + ' = ' + (a * p) + ' + b',
+      'b = <b>' + b + '</b>']
+    };
+  };
+
+  G['m2-similar'] = function (lvl) {
+    const m = ri(2, 5); let n = ri(2, 7); while (n === m) n = ri(2, 7);
+    const vol = lvl >= 3 && Math.random() < 0.5;
+    const S = m * m * ri(1, 6) * (vol ? m : 1);
+    if (vol) {
+      const V = m * m * m * ri(1, 5);
+      const big = new F(V * n * n * n, m * m * m);
+      return {
+        q: '닮음비가 ' + m + ' : ' + n + '인 두 입체도형이 있다. 작은 도형의 부피가 ' + V + ' cm³일 때, 큰 도형의 부피를 구하시오.',
+        ans: num(big),
+        sol: ['부피의 비 = ' + m + '³ : ' + n + '³ = ' + (m * m * m) + ' : ' + (n * n * n),
+          V + ' : x = ' + (m * m * m) + ' : ' + (n * n * n) + ' → x = <b>' + big.html() + '</b> cm³']
+      };
+    }
+    const big = new F(S * n * n, m * m);
+    return {
+      q: '닮음비가 ' + m + ' : ' + n + '인 두 도형이 있다. 작은 도형의 넓이가 ' + S + ' cm²일 때, 큰 도형의 넓이를 구하시오.',
+      ans: num(big),
+      sol: ['넓이의 비 = ' + m + '² : ' + n + '² = ' + (m * m) + ' : ' + (n * n),
+        S + ' : x = ' + (m * m) + ' : ' + (n * n) + ' → x = <b>' + big.html() + '</b> cm²']
+    };
+  };
+
+  G['m2-pythagoras'] = function (lvl) {
+    const trip = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29], [9, 12, 15], [6, 8, 10]]);
+    const k = ri(1, lvl >= 2 ? 3 : 2);
+    const a = trip[0] * k, b = trip[1] * k, c = trip[2] * k;
+    if (Math.random() < 0.5) return {
+      q: '직각을 낀 두 변의 길이가 ' + a + ' cm, ' + b + ' cm인 직각삼각형의 빗변의 길이를 구하시오.',
+      ans: num(c),
+      sol: ['c² = ' + a + '² + ' + b + '² = ' + (a * a) + ' + ' + (b * b) + ' = ' + (c * c), 'c = <b>' + c + '</b> cm']
+    };
+    return {
+      q: '빗변의 길이가 ' + c + ' cm이고 한 변의 길이가 ' + a + ' cm인 직각삼각형에서 나머지 한 변의 길이를 구하시오.',
+      ans: num(b),
+      sol: ['b² = ' + c + '² &minus; ' + a + '² = ' + (c * c) + ' &minus; ' + (a * a) + ' = ' + (b * b), 'b = <b>' + b + '</b> cm']
+    };
+  };
+
+  G['m2-prob'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const s = ri(4, 10);
+      let cnt = 0; for (let i = 1; i <= 6; i++) for (let j = 1; j <= 6; j++) if (i + j === s) cnt++;
+      return {
+        q: '서로 다른 두 개의 주사위를 동시에 던질 때, 나온 눈의 수의 합이 ' + s + '일 확률을 구하시오.<div class="note">기약분수로 입력 (예: 1/6)</div>',
+        ans: num(new F(cnt, 36)),
+        sol: ['모든 경우의 수 = 6 × 6 = 36', '합이 ' + s + '인 경우 = ' + cnt + '가지',
+        '확률 = ' + H.f(cnt, 36) + ' = <b>' + new F(cnt, 36).html() + '</b>']
+      };
+    }
+    if (t === 2) {
+      const n = ri(3, 5), k = ri(1, n - 1);
+      const C = (a, b) => { let r = 1; for (let i = 0; i < b; i++) r = r * (a - i) / (i + 1); return Math.round(r); };
+      const v = new F(C(n, k), Math.pow(2, n));
+      return {
+        q: n + '개의 동전을 동시에 던질 때, 앞면이 ' + k + '개 나올 확률을 구하시오.<div class="note">기약분수로 입력</div>',
+        ans: num(v),
+        sol: ['모든 경우의 수 = 2<sup>' + n + '</sup> = ' + Math.pow(2, n),
+        '앞면 ' + k + '개인 경우 = ' + C(n, k) + '가지', '확률 = <b>' + v.html() + '</b>']
+      };
+    }
+    const r = ri(3, 6), b = ri(2, 5), N = r + b;
+    const C2 = (x) => x * (x - 1) / 2;
+    const v = new F(C2(r), C2(N));
+    return {
+      q: '빨간 공 ' + r + '개와 파란 공 ' + b + '개가 들어 있는 주머니에서 동시에 2개를 꺼낼 때, 두 개 모두 빨간 공일 확률을 구하시오.<div class="note">기약분수로 입력</div>',
+      ans: num(v),
+      sol: ['전체 = ' + N + 'C2 = ' + C2(N) + '가지', '빨강 2개 = ' + r + 'C2 = ' + C2(r) + '가지', '확률 = <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['m2-polygon'] = function (lvl) {
+    const n = ri(5, 12), t = ri(1, 3);
+    if (t === 1) return {
+      q: n + '각형의 내각의 크기의 합을 구하시오. (숫자만, 단위 °)',
+      ans: num(180 * (n - 2)),
+      sol: ['180° × (' + n + ' &minus; 2) = <b>' + (180 * (n - 2)) + '</b>°']
+    };
+    if (t === 2) return {
+      q: n + '각형의 대각선의 총 개수를 구하시오.',
+      ans: num(n * (n - 3) / 2),
+      sol: [H.f('n(n &minus; 3)', 2) + ' = ' + H.f(n + ' × ' + (n - 3), 2) + ' = <b>' + (n * (n - 3) / 2) + '</b>개']
+    };
+    return {
+      q: '정' + n + '각형의 한 외각의 크기를 구하시오. (숫자만, 단위 °)',
+      ans: num(new F(360, n)),
+      sol: ['외각의 합은 항상 360°이므로 ' + H.f(360, n) + ' = <b>' + new F(360, n).html() + '</b>°']
+    };
+  };
+
+  /* ---------- 중3 ---------- */
+
+  function squarefree(x) { for (let k = 2; k * k <= x; k++) if (x % (k * k) === 0) return false; return true; }
+
+  G['m3-sqrt-simplify'] = function (lvl) {
+    const a = ri(2, lvl >= 2 ? 9 : 6);
+    let b = pick([2, 3, 5, 6, 7, 10, 11, 13, 14, 15]);
+    const N = a * a * b;
+    return {
+      q: H.rad(N) + ' 를 a' + H.rad(b) + ' 꼴로 나타낼 때, a의 값을 구하시오.',
+      ans: num(a),
+      sol: [N + ' = ' + (a * a) + ' × ' + b, H.rad(N) + ' = ' + H.rad((a * a)) + ' × ' + H.rad(b) + ' = ' + a + H.rad(b),
+      'a = <b>' + a + '</b>']
+    };
+  };
+
+  G['m3-sqrt-calc'] = function (lvl) {
+    const p = ri(2, 6), q = ri(2, 6), m = pick([2, 3, 5]), k = ri(2, 4);
+    // p√m × q√(m k²) = p q k m
+    const inner = m * k * k;
+    const v = p * q * k * m;
+    return {
+      q: '다음을 계산하시오.<div class="expr">' + p + H.rad(m) + ' × ' + q + H.rad(inner) + '</div><div class="note">유리수로 나옵니다. 숫자만 입력</div>',
+      ans: num(v),
+      sol: [H.rad(inner) + ' = ' + k + H.rad(m),
+        p + H.rad(m) + ' × ' + (q * k) + H.rad(m) + ' = ' + (p * q * k) + ' × ' + m + ' = <b>' + v + '</b>']
+    };
+  };
+
+  G['m3-sqrt-rational'] = function (lvl) {
+    const m = pick([2, 3, 5, 6, 7]), k = ri(2, 12);
+    const v = new F(k, m);
+    return {
+      q: H.f(k, H.rad(m)) + ' 의 분모를 유리화하여 a' + H.rad(m) + ' 꼴로 나타낼 때, a의 값을 구하시오.<div class="note">분수면 예: 3/2 로 입력</div>',
+      ans: num(v),
+      sol: ['분모·분자에 ' + H.rad(m) + ' 를 곱하면 ' + H.f(k + H.rad(m), m),
+      'a = ' + H.f(k, m) + ' = <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['m3-expand'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const a = ri(1, 5), b = rnz(-7, 7);
+      const correct = polyStr([[a * a, X2], [2 * a * b, X], [b * b, '']]);
+      const wrongs = [polyStr([[a * a, X2], [b * b, '']]), polyStr([[a * a, X2], [a * b, X], [b * b, '']]),
+      polyStr([[a * a, X2], [2 * a * b, X], [-b * b, '']]), polyStr([[a, X2], [2 * a * b, X], [b * b, '']])];
+      return {
+        q: '다음을 전개하시오.<div class="expr">' + bin(a, b) + '<sup>2</sup></div>',
+        ans: choice(correct, wrongs),
+        sol: ['(A + B)² = A² + 2AB + B²', '= ' + (a * a) + 'x² + 2×' + a + '×(' + b + ')x + (' + b + ')²', '= <b>' + correct + '</b>']
+      };
+    }
+    if (t === 2) {
+      const a = ri(1, 5), b = ri(1, 7);
+      const correct = polyStr([[a * a, X2], [-b * b, '']]);
+      const wrongs = [polyStr([[a * a, X2], [b * b, '']]), polyStr([[a * a, X2], [-2 * a * b, X], [-b * b, '']]),
+      polyStr([[a * a, X2], [2 * a * b, X], [-b * b, '']]), polyStr([[a, X2], [-b, '']])];
+      return {
+        q: '다음을 전개하시오.<div class="expr">' + bin(a, b) + bin(a, -b) + '</div>',
+        ans: choice(correct, wrongs),
+        sol: ['(A + B)(A &minus; B) = A² &minus; B²', '= <b>' + correct + '</b>']
+      };
+    }
+    const a = ri(1, 4), b = rnz(-6, 6), c = ri(1, 4), d = rnz(-6, 6);
+    const correct = polyStr([[a * c, X2], [a * d + b * c, X], [b * d, '']]);
+    const wrongs = [polyStr([[a * c, X2], [a * c + b * d, X], [b * d, '']]),
+    polyStr([[a * c, X2], [a * d - b * c, X], [b * d, '']]),
+    polyStr([[a + c, X2], [a * d + b * c, X], [b * d, '']]),
+    polyStr([[a * c, X2], [a * d + b * c, X], [b + d, '']])];
+    return {
+      q: '다음을 전개하시오.<div class="expr">' + bin(a, b) + bin(c, d) + '</div>',
+      ans: choice(correct, wrongs),
+      sol: ['(ax + b)(cx + d) = acx² + (ad + bc)x + bd',
+      'ac = ' + (a * c) + ', ad + bc = ' + (a * d + b * c) + ', bd = ' + (b * d), '= <b>' + correct + '</b>']
+    };
+  };
+
+  G['m3-factor'] = function (lvl) {
+    const t = lvl >= 3 ? ri(1, 3) : ri(1, 2);
+    if (t === 1) {
+      let p = rnz(-8, 8), q = rnz(-8, 8);
+      while (p + q === 0) q = rnz(-8, 8);          // 합차공식과 겹쳐 오답 보기가 정답이 되는 것 방지
+      const bx = p + q, c = p * q;
+      const correct = bin(1, p) + bin(1, q);
+      const wrongs = [bin(1, -p) + bin(1, -q), bin(1, p) + bin(1, -q), bin(1, p + q) + bin(1, 1), bin(1, p) + bin(1, q + 1)];
+      return {
+        q: '다음 식을 인수분해 하시오.<div class="expr">' + polyStr([[1, X2], [bx, X], [c, '']]) + '</div>',
+        ans: choice(correct, wrongs),
+        sol: ['합이 ' + bx + ', 곱이 ' + c + '인 두 수: ' + p + ', ' + q, '= <b>' + correct + '</b>']
+      };
+    }
+    if (t === 2) {
+      let a = ri(1, 6), b = ri(1, 9);
+      let g2 = 0;
+      while (gcd(a, b) !== 1 && g2++ < 100) { a = ri(1, 6); b = ri(1, 9); }   // 공통인수가 남지 않도록
+      if (gcd(a, b) !== 1) throw new Error('재생성');
+      const correct = bin(a, b) + bin(a, -b);
+      const wrongs = [bin(a, b) + bin(a, b), bin(a, b) + '<sup>2</sup>', bin(a * a, b * b), bin(a, -b) + bin(a, -b)];
+      return {
+        q: '다음 식을 인수분해 하시오.<div class="expr">' + polyStr([[a * a, X2], [-b * b, '']]) + '</div>',
+        ans: choice(correct, wrongs),
+        sol: ['A² &minus; B² = (A + B)(A &minus; B)', '= <b>' + correct + '</b>']
+      };
+    }
+    let a = ri(2, 4), p = rnz(-5, 5), c = ri(2, 4), q = rnz(-5, 5);
+    let guard = 0;
+    const badPair = () => a === c || p === q || a * q + p * c === 0 ||
+      gcd(a, Math.abs(p)) !== 1 || gcd(c, Math.abs(q)) !== 1;   // 각 인수에 공통인수가 남지 않도록
+    while (badPair() && guard++ < 300) {
+      a = ri(2, 4); c = ri(2, 4); p = rnz(-5, 5); q = rnz(-5, 5);
+    }
+    if (badPair()) throw new Error('재생성');
+    const correct = bin(a, p) + bin(c, q);
+    const wrongs = [bin(a, q) + bin(c, p), bin(a, -p) + bin(c, -q), bin(a * c, p * q), bin(a, p) + bin(c, -q)];
+    return {
+      q: '다음 식을 인수분해 하시오.<div class="expr">' + polyStr([[a * c, X2], [a * q + p * c, X], [p * q, '']]) + '</div>',
+      ans: choice(correct, wrongs),
+      sol: ['x² 계수 ' + (a * c) + ' 와 상수항 ' + (p * q) + ' 를 대각선으로 곱해 x 계수 ' + (a * q + p * c) + ' 를 만든다.',
+      '= <b>' + correct + '</b>']
+    };
+  };
+
+  G['m3-quadeq'] = function (lvl) {
+    if (lvl >= 3) {
+      const a = ri(2, 4); let p = rnz(-5, 5); const q = rnz(-5, 5);
+      let g = 0;
+      while (p === a * q && g++ < 100) p = rnz(-5, 5);   // 중근 방지
+      if (p === a * q) throw new Error('재생성');
+      // (a x - p)(x - q) = 0  → x = p/a, q
+      const r1 = new F(p, a), r2 = new F(q);
+      const A = a, B = -(p + a * q), C = p * q;
+      return {
+        q: '이차방정식을 푸시오.<div class="expr">' + polyStr([[A, X2], [B, X], [C, '']]) + ' = 0</div><div class="note">두 근을 쉼표로 구분 (예: 2, -3)</div>',
+        ans: set([r1, r2]),
+        sol: ['인수분해: ' + bin(a, -p) + bin(1, -q) + ' = 0', 'x = <b>' + r1.html() + '</b> 또는 x = <b>' + r2.html() + '</b>']
+      };
+    }
+    let p = rnz(-9, 9), q = rnz(-9, 9);
+    if (p === q) q = q + 1 === 0 ? q + 2 : q + 1;
+    return {
+      q: '이차방정식을 푸시오.<div class="expr">' + polyStr([[1, X2], [-(p + q), X], [p * q, '']]) + ' = 0</div><div class="note">두 근을 쉼표로 구분 (예: 2, -3)</div>',
+      ans: set([p, q]),
+      sol: ['인수분해: ' + bin(1, -p) + bin(1, -q) + ' = 0', 'x = <b>' + p + '</b> 또는 x = <b>' + q + '</b>']
+    };
+  };
+
+  G['m3-quad-relation'] = function (lvl) {
+    const b = rnz(-8, 8), c = rnz(-8, 8);
+    const t = ri(1, 3);
+    if (t === 1) return {
+      q: '이차방정식 ' + polyStr([[1, X2], [b, X], [c, '']]) + ' = 0 의 두 근을 α, β라 할 때, α + β 의 값을 구하시오.',
+      ans: num(-b), sol: ['α + β = &minus;' + H.f('b', 'a') + ' = <b>' + (-b) + '</b>']
+    };
+    if (t === 2) return {
+      q: '이차방정식 ' + polyStr([[1, X2], [b, X], [c, '']]) + ' = 0 의 두 근을 α, β라 할 때, αβ 의 값을 구하시오.',
+      ans: num(c), sol: ['αβ = ' + H.f('c', 'a') + ' = <b>' + c + '</b>']
+    };
+    return {
+      q: '이차방정식 ' + polyStr([[1, X2], [b, X], [c, '']]) + ' = 0 의 두 근을 α, β라 할 때, α² + β² 의 값을 구하시오.',
+      ans: num(b * b - 2 * c),
+      sol: ['α + β = ' + (-b) + ', αβ = ' + c, 'α² + β² = (α + β)² &minus; 2αβ = ' + (b * b) + ' &minus; ' + (2 * c) + ' = <b>' + (b * b - 2 * c) + '</b>']
+    };
+  };
+
+  G['m3-quad-word'] = function (lvl) {
+    if (Math.random() < 0.5) {
+      const n = ri(4, 20), N = n * (n + 1);
+      return {
+        q: '연속하는 두 자연수의 곱이 ' + N + '일 때, 두 수 중 작은 수를 구하시오.',
+        ans: num(n),
+        sol: ['작은 수를 x라 하면 x(x + 1) = ' + N, 'x² + x &minus; ' + N + ' = 0 → (x &minus; ' + n + ')(x + ' + (n + 1) + ') = 0',
+        'x는 자연수이므로 <b>' + n + '</b>']
+      };
+    }
+    const h = ri(3, 15), d = ri(2, 9), S = h * (h + d);
+    return {
+      q: '가로의 길이가 세로의 길이보다 ' + d + ' cm 긴 직사각형의 넓이가 ' + S + ' cm²이다. 세로의 길이를 구하시오.',
+      ans: num(h),
+      sol: ['세로를 x라 하면 x(x + ' + d + ') = ' + S, 'x² + ' + d + 'x &minus; ' + S + ' = 0 → (x &minus; ' + h + ')(x + ' + (h + d) + ') = 0',
+      'x > 0 이므로 <b>' + h + '</b> cm']
+    };
+  };
+
+  G['m3-quadfunc-vertex'] = function (lvl) {
+    const a = rnz(-3, 3), p = rnz(-5, 5), q = rnz(-9, 9);
+    const b = -2 * a * p, c = a * p * p + q;
+    return {
+      q: '이차함수 y = ' + polyStr([[a, X2], [b, X], [c, '']]) + ' 의 꼭짓점의 좌표를 구하시오.<div class="note">x좌표, y좌표를 각각 입력</div>',
+      ans: pair(p, q, 'x좌표', 'y좌표'),
+      sol: ['완전제곱식으로 고치면 y = ' + (a === 1 ? '' : a === -1 ? '-' : a) + '(x ' + (p >= 0 ? '&minus; ' + p : '+ ' + (-p)) + ')² ' + (q >= 0 ? '+ ' + q : '&minus; ' + (-q)),
+      '꼭짓점 = <b>(' + p + ', ' + q + ')</b>']
+    };
+  };
+
+  G['m3-quadfunc-minmax'] = function (lvl) {
+    const a = rnz(-3, 3), p = rnz(-5, 5), q = rnz(-9, 9);
+    const b = -2 * a * p, c = a * p * p + q;
+    const isMin = a > 0;
+    return {
+      q: '이차함수 y = ' + polyStr([[a, X2], [b, X], [c, '']]) + ' 의 ' + (isMin ? '최솟값' : '최댓값') + '을 구하시오.',
+      ans: num(q),
+      sol: ['y = ' + (a === 1 ? '' : a === -1 ? '-' : a) + '(x ' + (p >= 0 ? '&minus; ' + p : '+ ' + (-p)) + ')² ' + (q >= 0 ? '+ ' + q : '&minus; ' + (-q)),
+      'a = ' + a + ' ' + (isMin ? '> 0 이므로 아래로 볼록 → 최솟값' : '< 0 이므로 위로 볼록 → 최댓값') + ' = <b>' + q + '</b>']
+    };
+  };
+
+  G['m3-trig'] = function (lvl) {
+    if (lvl >= 3 && Math.random() < 0.5) {
+      // 특수각 조합 (유리수 결과)
+      const opts = [
+        ['sin 30° + cos 60°', new F(1)],
+        ['sin 30° × cos 60°', new F(1, 4)],
+        ['sin 60° × cos 30°', new F(3, 4)],
+        ['tan 45° + sin 30°', new F(3, 2)],
+        ['cos 60° &minus; sin 30°', new F(0)],
+        ['sin 45° × cos 45°', new F(1, 2)],
+        ['tan 45° × cos 60°', new F(1, 2)],
+        ['sin 60° ÷ cos 30°', new F(1)]
+      ];
+      const o = pick(opts);
+      return {
+        q: '다음 값을 구하시오.<div class="expr">' + o[0] + '</div><div class="note">분수면 예: 3/4 로 입력</div>',
+        ans: num(o[1]),
+        sol: ['sin30 = ' + H.f(1, 2) + ', cos60 = ' + H.f(1, 2) + ', sin60 = cos30 = ' + H.f(H.rad(3), 2) + ', tan45 = 1, sin45 = cos45 = ' + H.f(H.rad(2), 2),
+        '대입하여 계산하면 <b>' + o[1].html() + '</b>']
+      };
+    }
+    const trip = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25]]);
+    const k = ri(1, 3), a = trip[0] * k, b = trip[1] * k, c = trip[2] * k;
+    const which = pick(['sin', 'cos', 'tan']);
+    const v = which === 'sin' ? new F(a, c) : which === 'cos' ? new F(b, c) : new F(a, b);
+    return {
+      q: '∠C = 90°인 직각삼각형 ABC에서 <span class="ov2">BC</span> = ' + a + ', <span class="ov2">AC</span> = ' + b +
+        ', <span class="ov2">AB</span> = ' + c + ' 이다. ' + which + ' A 의 값을 구하시오.<div class="note">기약분수로 입력 (예: 3/5)</div>',
+      ans: num(v),
+      sol: ['sin A = ' + H.f('대변', '빗변') + ' = ' + H.f(a, c) + ', cos A = ' + H.f(b, c) + ', tan A = ' + H.f(a, b),
+      which + ' A = <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['m3-circle'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const c = 2 * ri(15, 85);
+      return {
+        q: '원 O에서 호 AB에 대한 중심각의 크기가 ' + c + '°일 때, 호 AB에 대한 원주각의 크기를 구하시오. (숫자만)',
+        ans: num(c / 2),
+        sol: ['원주각 = ' + H.f(1, 2) + ' × 중심각 = ' + H.f(c, 2) + ' = <b>' + (c / 2) + '</b>°']
+      };
+    }
+    if (t === 2) {
+      const p = ri(20, 80);
+      return {
+        q: '원에 내접하는 사각형 ABCD에서 ∠A = ' + p + '°일 때, ∠C의 크기를 구하시오. (숫자만)',
+        ans: num(180 - p),
+        sol: ['원에 내접하는 사각형에서 대각의 합은 180°', '∠C = 180 &minus; ' + p + ' = <b>' + (180 - p) + '</b>°']
+      };
+    }
+    const w = ri(20, 70);
+    return {
+      q: '원주각의 크기가 ' + w + '°일 때, 그 호에 대한 중심각의 크기를 구하시오. (숫자만)',
+      ans: num(2 * w),
+      sol: ['중심각 = 2 × 원주각 = <b>' + (2 * w) + '</b>°']
+    };
+  };
+
+  G['m3-stat'] = function (lvl) {
+    const n = 5, base = ri(5, 30);
+    const ds = pick([[-2, -1, 0, 1, 2], [-4, -2, 0, 2, 4], [-3, -1, 0, 1, 3], [-2, -2, 0, 2, 2], [-6, -3, 0, 3, 6]]);
+    const data = shuffle(ds.map(d => base + d));
+    const varr = new F(ds.reduce((a, d) => a + d * d, 0), n);
+    const askVar = Math.random() < 0.6;
+    if (askVar) return {
+      q: '다음 자료의 분산을 구하시오.<div class="expr">' + data.join(', ') + '</div><div class="note">분수면 예: 26/5 로 입력</div>',
+      ans: num(varr),
+      sol: ['평균 = ' + base, '편차: ' + ds.slice().sort((a, b) => a - b).join(', '),
+      '분산 = ' + H.f('(편차)²의 합', n) + ' = ' + H.f(ds.reduce((a, d) => a + d * d, 0), n) + ' = <b>' + varr.html() + '</b>']
+    };
+    return {
+      q: '다음 자료의 평균을 구하시오.<div class="expr">' + data.join(', ') + '</div>',
+      ans: num(base),
+      sol: ['합 = ' + data.reduce((a, b) => a + b, 0), '평균 = <b>' + base + '</b>']
+    };
+  };
+
+  /* =====================================================================
+     유형 카탈로그
+     ===================================================================== */
+  const CATALOG = [
+    { id: 'm1-divisor', g: '중1', u: '소인수분해', n: '약수의 개수', k: '소인수분해 약수 개수 거듭제곱' },
+    { id: 'm1-gcdlcm', g: '중1', u: '소인수분해', n: '최대공약수·최소공배수', k: '최대공약수 최소공배수 GCD LCM' },
+    { id: 'm1-intcalc', g: '중1', u: '정수와 유리수', n: '정수·유리수의 사칙연산', k: '정수 유리수 사칙연산 거듭제곱 음수 계산' },
+    { id: 'm1-linexpr', g: '중1', u: '문자와 식', n: '일차식의 계산', k: '일차식 분배법칙 동류항 간단히' },
+    { id: 'm1-lineq', g: '중1', u: '일차방정식', n: '일차방정식 풀기', k: '일차방정식 해 이항' },
+    { id: 'm1-lineq-word', g: '중1', u: '일차방정식', n: '일차방정식의 활용', k: '일차방정식 활용 문장제 나이 연속하는 수' },
+    { id: 'm1-proportion', g: '중1', u: '좌표와 그래프', n: '정비례·반비례', k: '정비례 반비례 그래프 좌표' },
+    { id: 'm1-angle', g: '중1', u: '기본도형', n: '각도 구하기', k: '각도 맞꼭지각 평행선 동위각 엇각 외각' },
+    { id: 'm1-sector', g: '중1', u: '평면도형', n: '부채꼴의 호의 길이·넓이', k: '부채꼴 호의 길이 넓이 중심각 원' },
+    { id: 'm1-solid', g: '중1', u: '입체도형', n: '입체도형의 부피', k: '부피 겉넓이 원기둥 원뿔 구 입체도형' },
+    { id: 'm1-stat', g: '중1', u: '통계', n: '평균·중앙값', k: '평균 중앙값 대푯값 자료' },
+
+    { id: 'm2-recurring', g: '중2', u: '유리수와 순환소수', n: '순환소수를 분수로', k: '순환소수 분수 유리수' },
+    { id: 'm2-exponent', g: '중2', u: '식의 계산', n: '지수법칙·단항식 계산', k: '지수법칙 단항식 곱셈 나눗셈 거듭제곱' },
+    { id: 'm2-poly', g: '중2', u: '식의 계산', n: '다항식의 덧셈과 뺄셈', k: '다항식 덧셈 뺄셈 동류항 괄호' },
+    { id: 'm2-ineq', g: '중2', u: '부등식', n: '일차부등식', k: '부등식 일차부등식 해 자연수 개수' },
+    { id: 'm2-simul', g: '중2', u: '연립방정식', n: '연립일차방정식 풀기', k: '연립방정식 가감법 대입법' },
+    { id: 'm2-simul-word', g: '중2', u: '연립방정식', n: '연립방정식의 활용', k: '연립방정식 활용 문장제 두 자리 자연수 개수 금액' },
+    { id: 'm2-linfunc-slope', g: '중2', u: '일차함수', n: '기울기·일차함수 식', k: '일차함수 기울기 두 점 직선의 식' },
+    { id: 'm2-linfunc-intercept', g: '중2', u: '일차함수', n: 'x절편·y절편', k: '일차함수 x절편 y절편 그래프' },
+    { id: 'm2-linfunc-cond', g: '중2', u: '일차함수', n: '평행·수직 조건', k: '일차함수 평행 수직 기울기 조건' },
+    { id: 'm2-similar', g: '중2', u: '도형의 닮음', n: '닮음비와 넓이·부피비', k: '닮음 닮음비 넓이비 부피비' },
+    { id: 'm2-pythagoras', g: '중2', u: '피타고라스 정리', n: '피타고라스 정리', k: '피타고라스 직각삼각형 빗변' },
+    { id: 'm2-prob', g: '중2', u: '확률', n: '경우의 수와 확률', k: '확률 경우의 수 주사위 동전 주머니' },
+    { id: 'm2-polygon', g: '중2', u: '도형의 성질', n: '다각형의 내각·외각·대각선', k: '다각형 내각 외각 대각선 정다각형' },
+
+    { id: 'm3-sqrt-simplify', g: '중3', u: '제곱근', n: '근호 안의 수 간단히', k: '제곱근 근호 루트 간단히' },
+    { id: 'm3-sqrt-calc', g: '중3', u: '제곱근', n: '근호의 곱셈·나눗셈', k: '제곱근 곱셈 나눗셈 루트 계산' },
+    { id: 'm3-sqrt-rational', g: '중3', u: '제곱근', n: '분모의 유리화', k: '유리화 분모 제곱근 루트' },
+    { id: 'm3-expand', g: '중3', u: '다항식', n: '곱셈 공식(전개)', k: '전개 곱셈공식 다항식 완전제곱' },
+    { id: 'm3-factor', g: '중3', u: '인수분해', n: '인수분해', k: '인수분해 공통인수 완전제곱식 합차공식' },
+    { id: 'm3-quadeq', g: '중3', u: '이차방정식', n: '이차방정식 풀기', k: '이차방정식 근 인수분해 근의공식' },
+    { id: 'm3-quad-relation', g: '중3', u: '이차방정식', n: '근과 계수의 관계', k: '근과 계수의 관계 두 근의 합 곱' },
+    { id: 'm3-quad-word', g: '중3', u: '이차방정식', n: '이차방정식의 활용', k: '이차방정식 활용 문장제 넓이 연속하는 수' },
+    { id: 'm3-quadfunc-vertex', g: '중3', u: '이차함수', n: '이차함수의 꼭짓점', k: '이차함수 꼭짓점 축 완전제곱식 포물선' },
+    { id: 'm3-quadfunc-minmax', g: '중3', u: '이차함수', n: '이차함수의 최대·최소', k: '이차함수 최댓값 최솟값' },
+    { id: 'm3-trig', g: '중3', u: '삼각비', n: '삼각비', k: '삼각비 sin cos tan 특수각' },
+    { id: 'm3-circle', g: '중3', u: '원의 성질', n: '원주각·내접사각형', k: '원주각 중심각 내접 사각형 원의 성질' },
+    { id: 'm3-stat', g: '중3', u: '통계', n: '분산과 표준편차', k: '분산 표준편차 편차 산포도 평균' }
+  ];
+  CATALOG.forEach(c => { c.gen = G[c.id]; });
+  const BY_ID = {};
+  CATALOG.forEach(c => BY_ID[c.id] = c);
+
+  /* =====================================================================
+     정답 채점
+     ===================================================================== */
+  function normStr(s) {
+    return String(s == null ? '' : s)
+      .replace(/[−–—－]/g, '-')
+      .replace(/[＋]/g, '+')
+      .replace(/\s+/g, '')
+      .replace(/^답[:：]?/, '');
+  }
+  function parseNum(s) {
+    let t = normStr(s);
+    t = t.replace(/^[a-zA-Zα-ωΑ-Ω]+=/, '');
+    t = t.replace(/(cm|㎝|mm|m|km|°|도|개|원|명|점|초|분|시간|살|가지|년|π|파이)+$/g, '');
+    t = t.replace(/^\((.*)\)$/, '$1');
+    if (t === '' || t === '-') return null;
+    let m = t.match(/^(-?\d+)\/(-?\d+)$/);
+    if (m) { const d = +m[2]; if (d === 0) return null; return new F(+m[1], d); }
+    m = t.match(/^(-?)(\d*)\.(\d+)$/);
+    if (m) { const den = Math.pow(10, m[3].length); const n = +((m[2] || '0') + m[3]); return new F((m[1] ? -1 : 1) * n, den); }
+    if (/^-?\d+$/.test(t)) return new F(+t);
+    return null;
+  }
+  function splitParts(s) {
+    return normStr(s).split(/,|、|또는|or|;|\/{2}/i).filter(x => x !== '');
+  }
+  function parseList(s) {
+    const out = [];
+    for (let p of splitParts(s)) {
+      p = p.replace(/^[a-zA-Zα-ωΑ-Ω]+=/, '');
+      if (/^[±±]/.test(p)) {
+        const v = parseNum(p.slice(1)); if (!v) return null;
+        out.push(v); out.push(v.neg()); continue;
+      }
+      const v = parseNum(p); if (!v) return null;
+      out.push(v);
+    }
+    return out;
+  }
+  function check(ans, input) {
+    if (ans.kind === 'choice') return input === ans.idx;
+    if (ans.kind === 'num') { const v = parseNum(input); return !!v && v.eq(ans.val); }
+    if (ans.kind === 'set') {
+      const l = parseList(input); if (!l) return false;
+      const key = a => a.map(f => f.toString()).sort().join('|');
+      const uq = [];
+      l.forEach(f => { if (!uq.some(u => u.eq(f))) uq.push(f); });
+      return uq.length === ans.vals.length && key(uq) === key(ans.vals);
+    }
+    if (ans.kind === 'pair') {
+      // input: [s1, s2]
+      if (!Array.isArray(input)) return false;
+      const a = parseNum(input[0]), b = parseNum(input[1]);
+      return !!a && !!b && a.eq(ans.vals[0]) && b.eq(ans.vals[1]);
+    }
+    return false;
+  }
+  function answerText(ans) {
+    if (ans.kind === 'choice') return ans.choices[ans.idx];
+    if (ans.kind === 'num') return ans.val.html();
+    if (ans.kind === 'set') return ans.vals.map(v => v.html()).join(' , ');
+    if (ans.kind === 'pair') return ans.labels[0] + ' = ' + ans.vals[0].html() + ',  ' + ans.labels[1] + ' = ' + ans.vals[1].html();
+    return '';
+  }
+
+  function makeProblem(typeId, lvl) {
+    const c = BY_ID[typeId];
+    if (!c) return null;
+    let p = null;
+    for (let i = 0; i < 40 && !p; i++) { try { p = c.gen(lvl || 2); } catch (e) { p = null; } }
+    if (!p) return null;
+    p.typeId = typeId; p.typeName = c.n; p.unit = c.u; p.grade = c.g; p.level = lvl || 2;
+    return p;
+  }
+
+  const API = { F, H, CATALOG, BY_ID, makeProblem, check, answerText, parseNum, parseList, polyStr, gcd };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+  root.QGEN = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+
+/* ================= 앱 ================= */
+(function(){
+  'use strict';
+  var Q = window.QGEN;
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+
+  var S = { selected:{}, problems:[], idx:0, results:[], count:10, level:2, title:'' };
+
+  function show(v){
+    ['home','select','quiz','result'].forEach(function(k){ $('view-'+k).classList.toggle('hide', k!==v); });
+    window.scrollTo(0,0);
+  }
+  function msg(el, kind, html){ $(el).innerHTML = html ? '<div class="'+kind+'">'+html+'</div>' : ''; }
+
+  /* ---------- 시험 코드 파싱 ---------- */
+  function parseCode(raw){
+    var s = String(raw||'').trim();
+    var i = s.search(/[#?]/);
+    if(/^https?:\/\//i.test(s) && i >= 0) s = s.slice(i+1);
+    s = s.replace(/^[#?]+/, '');
+    if(!s) return null;
+    var out = { types:{}, n:10, lv:2, title:'' };
+    s.split('&').forEach(function(kv){
+      var p = kv.split('='); var k = p[0], v = decodeURIComponent((p[1]||'').replace(/\+/g,' '));
+      if(k === 't'){
+        v.split(',').forEach(function(one){
+          var q = one.split(':'), id = q[0].trim(), w = parseInt(q[1]||'1',10);
+          if(Q.BY_ID[id]) out.types[id] = (w>0 && w<20) ? w : 1;
+        });
+      }
+      else if(k === 'n'){ var n = parseInt(v,10); if(n>=1 && n<=50) out.n = n; }
+      else if(k === 'lv'){ var l = parseInt(v,10); if(l>=1 && l<=3) out.lv = l; }
+      else if(k === 'title'){ out.title = v.slice(0,60); }
+    });
+    return Object.keys(out.types).length ? out : null;
+  }
+  function buildCode(){
+    var t = Object.keys(S.selected).map(function(id){
+      var w = S.selected[id]; return w>1 ? id+':'+w : id;
+    }).join(',');
+    var c = 't=' + t + '&n=' + S.count + '&lv=' + S.level;
+    if(S.title) c += '&title=' + encodeURIComponent(S.title);
+    return c;
+  }
+
+  var LEVELNAME = {1:'기본',2:'표준',3:'심화'};
+  function showLinkCard(cfg){
+    S.selected = {}; Object.keys(cfg.types).forEach(function(id){ S.selected[id] = cfg.types[id]; });
+    S.count = cfg.n; S.level = cfg.lv; S.title = cfg.title;
+    $('linkTitle').textContent = cfg.title || '받은 시험';
+    $('linkDesc').textContent = '아래 유형으로 문제가 만들어집니다. 준비되면 시작하세요.';
+    $('linkInfo').innerHTML = '<span>' + cfg.n + '문제</span><span>난이도 ' + LEVELNAME[cfg.lv] + '</span><span>유형 ' +
+      Object.keys(cfg.types).length + '개</span>';
+    $('linkTypes').innerHTML = Object.keys(cfg.types).map(function(id){
+      var t = Q.BY_ID[id];
+      return '<span class="chip on"><span class="dot"></span>' + esc(t.g+' · '+t.n) +
+             (cfg.types[id]>1 ? '<span class="badge">'+cfg.types[id]+'</span>' : '') + '</span>';
+    }).join('');
+    $('linkCard').classList.remove('hide');
+    $('pickCard').querySelector('h2').textContent = '다른 유형도 풀어보기';
+  }
+
+  (function initFromUrl(){
+    var cfg = parseCode(location.hash) || parseCode(location.search);
+    if(cfg) showLinkCard(cfg);
+  })();
+
+  $('btnStartLink').addEventListener('click', function(){
+    startQuiz(buildProblems(Object.keys(S.selected), S.count, S.level));
+  });
+  $('btnCode').addEventListener('click', function(){
+    var cfg = parseCode($('codeIn').value);
+    if(!cfg){ msg('codeMsg','err','코드를 알아볼 수 없습니다. 받은 링크나 코드를 그대로 붙여넣어 주세요.'); return; }
+    msg('codeMsg','','');
+    showLinkCard(cfg);
+    startQuiz(buildProblems(Object.keys(S.selected), S.count, S.level));
+  });
+
+  /* ---------- 유형 선택 ---------- */
+  $('btnManual').addEventListener('click', function(){ renderTypes(); show('select'); });
+  $('btnBackHome').addEventListener('click', function(){ show('home'); });
+  $('btnHome2').addEventListener('click', function(){ show('home'); });
+
+  function renderTypes(){
+    var byGrade = {};
+    Q.CATALOG.forEach(function(c){ (byGrade[c.g] = byGrade[c.g]||[]).push(c); });
+    var html = '';
+    ['중1','중2','중3'].forEach(function(g){
+      html += '<div class="gradehead"><h3>'+g+'</h3><span>' +
+              '<button class="btn ghost sm" data-all="'+g+'">전체</button> ' +
+              '<button class="btn ghost sm" data-none="'+g+'">해제</button></span></div>';
+      var byUnit = {};
+      byGrade[g].forEach(function(c){ (byUnit[c.u] = byUnit[c.u]||[]).push(c); });
+      Object.keys(byUnit).forEach(function(u){
+        html += '<div class="unit">'+esc(u)+'</div><div class="types">';
+        byUnit[u].forEach(function(c){
+          html += '<span class="chip'+(S.selected[c.id]?' on':'')+'" data-t="'+c.id+'"><span class="dot"></span>'+esc(c.n)+'</span>';
+        });
+        html += '</div>';
+      });
+    });
+    $('typeList').innerHTML = html;
+    Array.prototype.forEach.call($('typeList').querySelectorAll('[data-t]'), function(el){
+      el.onclick = function(){
+        var id = el.dataset.t;
+        if(S.selected[id]) delete S.selected[id]; else S.selected[id] = 1;
+        el.classList.toggle('on'); updateCount();
+      };
+    });
+    Array.prototype.forEach.call($('typeList').querySelectorAll('[data-all]'), function(el){
+      el.onclick = function(){ Q.CATALOG.forEach(function(c){ if(c.g===el.dataset.all) S.selected[c.id] = S.selected[c.id]||1; }); renderTypes(); };
+    });
+    Array.prototype.forEach.call($('typeList').querySelectorAll('[data-none]'), function(el){
+      el.onclick = function(){ Q.CATALOG.forEach(function(c){ if(c.g===el.dataset.none) delete S.selected[c.id]; }); renderTypes(); };
+    });
+    updateCount();
+  }
+  function updateCount(){
+    var n = Object.keys(S.selected).length;
+    $('selCount').textContent = n ? '(' + n + '개 선택)' : '';
+  }
+
+  $('btnMakeLink').addEventListener('click', function(){
+    if(!Object.keys(S.selected).length){ msg('selMsg','err','유형을 먼저 고르세요.'); return; }
+    S.count = parseInt($('count').value,10); S.level = parseInt($('level').value,10);
+    var url = location.origin + location.pathname + '#' + buildCode();
+    var ta = $('linkOut'); ta.classList.remove('hide'); ta.value = url;
+    ta.select();
+    copy(url, function(ok){ msg('selMsg', ok?'info':'err', ok ? '링크를 복사했습니다. 카톡에 붙여넣어 보내세요.' : '자동 복사가 막혀 있어요. 아래 칸의 주소를 길게 눌러 복사하세요.'); });
+  });
+  function copy(text, cb){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){cb(true);}, function(){cb(false);});
+    } else {
+      try{ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+           var ok=document.execCommand('copy'); document.body.removeChild(ta); cb(ok); }catch(e){ cb(false); }
+    }
+  }
+
+  /* ---------- 출제 ---------- */
+  $('btnStart').addEventListener('click', function(){
+    var ids = Object.keys(S.selected);
+    if(!ids.length){ msg('selMsg','err','유형을 하나 이상 고르세요.'); return; }
+    msg('selMsg','','');
+    S.count = parseInt($('count').value,10);
+    S.level = parseInt($('level').value,10);
+    startQuiz(buildProblems(ids, S.count, S.level));
+  });
+
+  function buildProblems(ids, count, level){
+    var pool = [];
+    ids.forEach(function(id){ var w = S.selected[id]||1; for(var i=0;i<w;i++) pool.push(id); });
+    var out = [], guard = 0;
+    while(out.length < count && guard++ < count*20){
+      var id = out.length < ids.length ? ids[out.length] : pool[Math.floor(Math.random()*pool.length)];
+      var p = Q.makeProblem(id, level);
+      if(p) out.push(p);
+    }
+    for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
+    return out;
+  }
+
+  function startQuiz(problems){
+    if(!problems.length){ msg('selMsg','err','문제를 만들지 못했습니다. 유형을 다시 골라주세요.'); return; }
+    S.problems = problems; S.idx = 0; S.results = [];
+    show('quiz'); renderQ();
+  }
+
+  function renderQ(){
+    var p = S.problems[S.idx];
+    $('qNo').textContent = (S.idx+1) + ' / ' + S.problems.length;
+    $('progBar').style.width = (S.idx / S.problems.length * 100) + '%';
+    $('qType').textContent = p.grade + ' · ' + p.typeName;
+    $('qText').innerHTML = p.q;
+    $('verdictArea').innerHTML = '';
+    $('btnNext').classList.add('hide');
+    $('btnMore').classList.add('hide');
+    $('btnSubmit').classList.remove('hide');
+
+    var a = p.ans, html = '';
+    if(a.kind === 'choice'){
+      $('btnSubmit').classList.add('hide');
+      html = '<div class="choices">' + a.choices.map(function(c,i){
+        return '<button class="ch" data-c="'+i+'"><span class="no">'+(i+1)+'</span><span>'+c+'</span></button>';
+      }).join('') + '</div>';
+    } else if(a.kind === 'pair'){
+      html = '<div class="pairrow">' +
+        '<div><div class="pl">'+esc(a.labels[0])+'</div><input type="text" id="in1" autocomplete="off" autocapitalize="off"></div>' +
+        '<div><div class="pl">'+esc(a.labels[1])+'</div><input type="text" id="in2" autocomplete="off" autocapitalize="off"></div>' +
+      '</div>' + keypad();
+    } else {
+      html = '<div class="ansrow"><input type="text" id="in1" placeholder="답 입력" autocomplete="off" autocapitalize="off"></div>' + keypad();
+    }
+    $('answerArea').innerHTML = html;
+
+    if(a.kind === 'choice'){
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('.ch'), function(b){
+        b.onclick = function(){ grade(+b.dataset.c); };
+      });
+    } else {
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('input'), function(inp){
+        inp.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); grade(); } };
+        inp.onfocus = function(){ S.focus = inp; };
+      });
+      S.focus = $('in1');
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('.keys button'), function(b){
+        b.onclick = function(e){
+          e.preventDefault();
+          var t = S.focus || $('in1'); if(!t || t.disabled) return;
+          if(b.dataset.k === 'del') t.value = t.value.slice(0,-1);
+          else t.value += b.dataset.k;
+          t.focus();
+        };
+      });
+    }
+  }
+  function keypad(){
+    return '<div class="keys">' +
+      '<button type="button" data-k="-">−</button>' +
+      '<button type="button" data-k="/">/</button>' +
+      '<button type="button" data-k=",">,</button>' +
+      '<button type="button" data-k="del">⌫</button></div>';
+  }
+
+  function grade(choiceIdx){
+    var p = S.problems[S.idx], a = p.ans, input;
+    if(a.kind === 'choice') input = choiceIdx;
+    else if(a.kind === 'pair') input = [$('in1').value, $('in2').value];
+    else input = $('in1').value;
+
+    if(a.kind !== 'choice'){
+      var empty = a.kind === 'pair' ? (!input[0].trim() || !input[1].trim()) : !String(input).trim();
+      if(empty){ msg('verdictArea','err','답을 입력한 뒤 채점하세요.'); return; }
+    }
+    var ok = Q.check(a, input);
+    S.results.push({ typeId:p.typeId, typeName:p.typeName, grade:p.grade, ok:ok });
+
+    if(a.kind === 'choice'){
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('.ch'), function(b,i){
+        b.disabled = true;
+        if(i === a.idx) b.classList.add(ok && i===choiceIdx ? 'pickOK' : 'showOK');
+        else if(i === choiceIdx) b.classList.add('pickNO');
+      });
+    } else {
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('input'), function(inp){ inp.disabled = true; });
+      Array.prototype.forEach.call($('answerArea').querySelectorAll('.keys button'), function(b){ b.disabled = true; });
+    }
+
+    $('verdictArea').innerHTML =
+      '<div class="verdict '+(ok?'ok':'no')+'"><div class="h">' + (ok ? '⭕ 정답!' : '❌ 오답') + '</div>' +
+      '<div>정답: <b>' + Q.answerText(a) + '</b></div></div>' +
+      '<div class="sol"><div class="t">풀이</div><ol>' + p.sol.map(function(s){ return '<li>'+s+'</li>'; }).join('') + '</ol></div>';
+    $('btnSubmit').classList.add('hide');
+    $('btnNext').classList.remove('hide');
+    if(!ok) $('btnMore').classList.remove('hide');
+    $('btnNext').textContent = (S.idx === S.problems.length-1) ? '결과 보기 →' : '다음 문제 →';
+  }
+
+  $('btnSubmit').addEventListener('click', function(){ grade(); });
+  $('btnNext').addEventListener('click', next);
+  function next(){
+    if(S.idx >= S.problems.length-1){ finish(); return; }
+    S.idx++; renderQ();
+  }
+  $('btnMore').addEventListener('click', function(){
+    var p = S.problems[S.idx];
+    var np = Q.makeProblem(p.typeId, p.level);
+    if(np) S.problems.splice(S.idx+1, 0, np);
+    next();
+  });
+  $('btnQuit').addEventListener('click', function(){
+    if(S.results.length) finish(); else show('home');
+  });
+
+  /* ---------- 결과 ---------- */
+  function finish(){
+    var n = S.results.length, r = S.results.filter(function(x){return x.ok;}).length;
+    var pct = n ? Math.round(r/n*100) : 0;
+    $('scoreN').textContent = pct + '점';
+    $('scoreD').textContent = n + '문제 중 ' + r + '개 정답' +
+      (pct===100 ? ' · 완벽해요!' : pct>=80 ? ' · 잘하고 있어요' : pct>=60 ? ' · 조금만 더!' : ' · 틀린 유형을 다시 풀어봐요');
+    var by = {};
+    S.results.forEach(function(x){
+      var b = by[x.typeId] = by[x.typeId] || { name:x.typeName, g:x.grade, r:0, w:0 };
+      x.ok ? b.r++ : b.w++;
+    });
+    var rows = '<tr><th>유형</th><th class="c">맞음</th><th class="c">틀림</th><th class="c">정답률</th></tr>';
+    var order = Object.keys(by).sort(function(a,b){ return by[b].w - by[a].w; });
+    order.forEach(function(id){
+      var b = by[id], t = b.r+b.w, p = Math.round(b.r/t*100);
+      rows += '<tr><td>'+esc(b.g)+' · '+esc(b.name)+'</td><td class="c">'+b.r+'</td><td class="c">'+b.w+'</td>' +
+              '<td class="c"><span class="pill '+(p>=60?'g':'r')+'">'+p+'%</span></td></tr>';
+    });
+    $('resTable').innerHTML = rows;
+    S.wrongIds = order.filter(function(id){ return by[id].w > 0; });
+    $('btnRetryWrong').disabled = S.wrongIds.length === 0;
+    S.summary = '[오답 시험지] ' + (S.title ? S.title + '\n' : '') +
+      n + '문제 중 ' + r + '개 정답 (' + pct + '점)\n' +
+      (S.wrongIds.length
+        ? '틀린 유형: ' + S.wrongIds.map(function(id){ return by[id].g + ' ' + by[id].name + ' ' + by[id].w + '개'; }).join(', ')
+        : '전부 정답!');
+    msg('resMsg','','');
+    show('result');
+  }
+  $('btnRetryWrong').addEventListener('click', function(){
+    if(!S.wrongIds || !S.wrongIds.length) return;
+    S.selected = {}; S.wrongIds.forEach(function(id){ S.selected[id] = 1; });
+    startQuiz(buildProblems(S.wrongIds, S.count, S.level));
+  });
+  $('btnSameAgain').addEventListener('click', function(){
+    var ids = Object.keys(S.selected);
+    if(!ids.length){ show('home'); return; }
+    startQuiz(buildProblems(ids, S.count, S.level));
+  });
+  $('btnCopyResult').addEventListener('click', function(){
+    copy(S.summary, function(ok){
+      msg('resMsg', ok?'info':'err', ok ? '결과를 복사했습니다. 카톡에 붙여넣어 보내세요.'
+        : '복사가 막혀 있어요. 아래 내용을 직접 보내주세요.<br><br>' + esc(S.summary).replace(/\n/g,'<br>'));
+    });
+  });
+})();
+</script>
+</body>
+</html>
