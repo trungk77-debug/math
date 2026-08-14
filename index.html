@@ -116,6 +116,7 @@
   .ov{border-top:1.4px solid currentColor;padding-top:1px}
   .ov2{border-top:1.2px solid currentColor;padding-top:0}
   sup{font-size:.72em}
+  sub{font-size:.72em}
   .err{background:var(--badbg);border:1px solid #f6c9c8;color:#992e2c;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
   .info{background:#eef4ff;border:1px solid #cfe0ff;color:#1f3f86;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
   details summary{cursor:pointer;font-size:13.5px;color:var(--sub);font-weight:600;list-style:none;padding:4px 0}
@@ -205,9 +206,16 @@
         </div>
         <div>
           <label class="fld">난이도</label>
-          <select id="level"><option value="1">기본</option><option value="2" selected>표준</option><option value="3">심화</option></select>
+          <select id="level">
+            <option value="1">기본</option>
+            <option value="2" selected>표준</option>
+            <option value="3">심화</option>
+            <option value="4">심화 2단계 (고2)</option>
+            <option value="5">1등급 (고3)</option>
+          </select>
         </div>
       </div>
+      <div id="lvHint"></div>
       <div class="row" style="margin-top:15px">
         <button class="btn" id="btnStart">시험 시작</button>
         <button class="btn ghost" id="btnBackHome">처음으로</button>
@@ -1219,6 +1227,335 @@
     };
   };
 
+  /* ---------- 고2 (심화 2단계) ---------- */
+
+  G['h2-exp-root'] = function (lvl) {
+    const a = pick([2, 3, 5]), n = ri(2, 4);
+    let m = ri(1, n * 2), guard = 0;
+    while ((gcd(m, n) !== 1 || m === n) && guard++ < 100) m = ri(1, n * 2);   // 지수를 기약분수로
+    if (gcd(m, n) !== 1 || m === n) throw new Error('재생성');
+    const base = Math.pow(a, n), val = Math.pow(a, m);
+    if (base > 100000 || val > 100000) return G['h2-exp-root'](lvl);
+    return {
+      q: '다음 값을 구하시오.<div class="expr">' + base + '<sup>' + m + '/' + n + '</sup></div>',
+      ans: num(val),
+      sol: [base + ' = ' + a + '<sup>' + n + '</sup> 이므로 ' + base + '<sup>' + m + '/' + n + '</sup> = (' +
+        a + '<sup>' + n + '</sup>)<sup>' + m + '/' + n + '</sup> = ' + a + '<sup>' + m + '</sup>',
+      '= <b>' + val + '</b>']
+    };
+  };
+
+  G['h2-log-basic'] = function (lvl) {
+    const b = pick([2, 3, 5]);
+    const p = ri(1, 5), q = ri(1, 5), r = ri(1, 4);
+    const L = (e) => 'log<sub>' + b + '</sub>' + Math.pow(b, e);
+    return {
+      q: '다음 값을 구하시오.<div class="expr">' + L(p) + ' + ' + L(q) + ' &minus; ' + L(r) + '</div>',
+      ans: num(p + q - r),
+      sol: ['log<sub>' + b + '</sub>' + b + '<sup>k</sup> = k 이므로 각각 ' + p + ', ' + q + ', ' + r,
+        p + ' + ' + q + ' &minus; ' + r + ' = <b>' + (p + q - r) + '</b>']
+    };
+  };
+
+  G['h2-log-eq'] = function (lvl) {
+    const b = pick([2, 3, 5]), k = ri(1, 4), c = rnz(-9, 9);
+    const x = Math.pow(b, k) + c;
+    return {
+      q: '로그방정식을 푸시오.<div class="expr">log<sub>' + b + '</sub>(x ' +
+        (c <= 0 ? '+ ' + (-c) : '&minus; ' + c) + ') = ' + k + '</div>',
+      ans: num(x),
+      sol: ['로그의 정의에 의해 x ' + (c <= 0 ? '+ ' + (-c) : '&minus; ' + c) + ' = ' + b + '<sup>' + k + '</sup> = ' + Math.pow(b, k),
+      'x = <b>' + x + '</b>']
+    };
+  };
+
+  G['h2-trig-value'] = function (lvl) {
+    const trip = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25]]);
+    const quad = pick([1, 2, 3, 4]);
+    const sinS = (quad === 1 || quad === 2) ? 1 : -1;
+    const cosS = (quad === 1 || quad === 4) ? 1 : -1;
+    const s = new F(sinS * trip[0], trip[2]);
+    const c = new F(cosS * trip[1], trip[2]);
+    const t = new F(sinS * trip[0] * cosS, trip[1]);
+    const given = pick(['sin', 'cos']);
+    const ask = given === 'sin' ? pick(['cos', 'tan']) : pick(['sin', 'tan']);
+    const gv = given === 'sin' ? s : c;
+    const av = ask === 'sin' ? s : ask === 'cos' ? c : t;
+    return {
+      q: 'θ가 제' + quad + '사분면의 각이고 ' + given + 'θ = ' + gv.html() + ' 일 때, ' + ask + 'θ 의 값을 구하시오.' +
+        '<div class="note">기약분수로 입력 (예: -4/5)</div>',
+      ans: num(av),
+      sol: ['sin²θ + cos²θ = 1 에서 나머지 값의 크기를 구한다.',
+      '제' + quad + '사분면이므로 sinθ는 ' + (sinS > 0 ? '양수' : '음수') + ', cosθ는 ' + (cosS > 0 ? '양수' : '음수'),
+        'sinθ = ' + s.html() + ', cosθ = ' + c.html() + ', tanθ = ' + t.html(),
+      ask + 'θ = <b>' + av.html() + '</b>']
+    };
+  };
+
+  G['h2-trig-graph'] = function (lvl) {
+    const a = rnz(-5, 5), b = ri(2, 4), c = rnz(-6, 6);
+    const fn = pick(['sin', 'cos']);
+    const t = ri(1, 3);
+    const expr = 'y = ' + (a === 1 ? '' : a === -1 ? '&minus;' : a) + fn + ' ' + b + 'x ' +
+      (c >= 0 ? '+ ' + c : '&minus; ' + (-c));
+    if (t === 1) return {
+      q: '함수 ' + expr + ' 의 최댓값을 구하시오.',
+      ans: num(Math.abs(a) + c),
+      sol: [fn + ' 의 값의 범위는 &minus;1 ≤ ' + fn + ' ≤ 1',
+      '최댓값 = |' + a + '| + (' + c + ') = <b>' + (Math.abs(a) + c) + '</b>']
+    };
+    if (t === 2) return {
+      q: '함수 ' + expr + ' 의 최솟값을 구하시오.',
+      ans: num(-Math.abs(a) + c),
+      sol: ['최솟값 = &minus;|' + a + '| + (' + c + ') = <b>' + (-Math.abs(a) + c) + '</b>']
+    };
+    return {
+      q: '함수 ' + expr + ' 의 주기를 구하시오.<div class="note">답은 π의 계수만 입력 (예: 2π → 2, ' + H.f(2, 3) + 'π → 2/3)</div>',
+      ans: num(new F(2, b)),
+      sol: ['y = ' + fn + ' bx 의 주기는 ' + H.f('2π', '|b|'),
+      '= ' + H.f(2, b) + 'π 이므로 <b>' + new F(2, b).html() + '</b>']
+    };
+  };
+
+  G['h2-seq-arith'] = function (lvl) {
+    const a1 = rnz(-9, 12), d = rnz(-6, 7), n = ri(5, 20);
+    const an = a1 + (n - 1) * d;
+    const Sn = new F(n * (2 * a1 + (n - 1) * d), 2);
+    if (Math.random() < 0.5) return {
+      q: '첫째항이 ' + a1 + ', 공차가 ' + d + '인 등차수열에서 제' + n + '항을 구하시오.',
+      ans: num(an),
+      sol: ['a<sub>n</sub> = a<sub>1</sub> + (n &minus; 1)d = ' + a1 + ' + ' + (n - 1) + ' × (' + d + ')',
+      '= <b>' + an + '</b>']
+    };
+    return {
+      q: '첫째항이 ' + a1 + ', 공차가 ' + d + '인 등차수열의 첫째항부터 제' + n + '항까지의 합을 구하시오.',
+      ans: num(Sn),
+      sol: ['S<sub>n</sub> = ' + H.f('n{2a<sub>1</sub> + (n &minus; 1)d}', 2) + ' = ' + H.f(n + '{' + (2 * a1) + ' + ' + ((n - 1) * d) + '}', 2),
+      '= <b>' + Sn.html() + '</b>']
+    };
+  };
+
+  G['h2-seq-geo'] = function (lvl) {
+    const a1 = rnz(-5, 6), r = pick([2, 3, -2]), n = ri(3, 7);
+    const an = a1 * Math.pow(r, n - 1);
+    const Sn = new F(a1 * (Math.pow(r, n) - 1), r - 1);
+    if (Math.abs(an) > 200000) return G['h2-seq-geo'](lvl);
+    if (Math.random() < 0.5) return {
+      q: '첫째항이 ' + a1 + ', 공비가 ' + r + '인 등비수열에서 제' + n + '항을 구하시오.',
+      ans: num(an),
+      sol: ['a<sub>n</sub> = a<sub>1</sub>r<sup>n&minus;1</sup> = ' + a1 + ' × (' + r + ')<sup>' + (n - 1) + '</sup>',
+      '= <b>' + an + '</b>']
+    };
+    return {
+      q: '첫째항이 ' + a1 + ', 공비가 ' + r + '인 등비수열의 첫째항부터 제' + n + '항까지의 합을 구하시오.',
+      ans: num(Sn),
+      sol: ['S<sub>n</sub> = ' + H.f('a<sub>1</sub>(r<sup>n</sup> &minus; 1)', 'r &minus; 1') +
+        ' = ' + H.f(a1 + '((' + r + ')<sup>' + n + '</sup> &minus; 1)', (r - 1)),
+      '= <b>' + Sn.html() + '</b>']
+    };
+  };
+
+  G['h2-sigma'] = function (lvl) {
+    const n = ri(4, 12), a = rnz(-5, 6), b = rnz(-8, 8);
+    const t = ri(1, 2);
+    if (t === 1) {
+      const v = a * n * (n + 1) / 2 + b * n;
+      return {
+        q: '다음 값을 구하시오.<div class="expr"><span style="font-size:1.4em">Σ</span><sub>k=1</sub><sup>' + n +
+          '</sup> (' + polyStr([[a, 'k'], [b, '']]) + ')</div>' +
+          '<div class="note">k = 1 부터 ' + n + ' 까지의 합</div>',
+        ans: num(v),
+        sol: ['Σk = ' + H.f('n(n+1)', 2) + ' = ' + (n * (n + 1) / 2) + ', Σ상수 = ' + b + ' × ' + n,
+          a + ' × ' + (n * (n + 1) / 2) + ' + ' + (b * n) + ' = <b>' + v + '</b>']
+      };
+    }
+    const v = a * n * (n + 1) * (2 * n + 1) / 6 + b * n * (n + 1) / 2;
+    return {
+      q: '다음 값을 구하시오.<div class="expr"><span style="font-size:1.4em">Σ</span><sub>k=1</sub><sup>' + n + '</sup> (' +
+        polyStr([[a, 'k<sup>2</sup>'], [b, 'k']]) + ')</div>',
+      ans: num(v),
+      sol: ['Σk² = ' + H.f('n(n+1)(2n+1)', 6) + ' = ' + (n * (n + 1) * (2 * n + 1) / 6) + ', Σk = ' + (n * (n + 1) / 2),
+        a + ' × ' + (n * (n + 1) * (2 * n + 1) / 6) + ' + ' + b + ' × ' + (n * (n + 1) / 2) + ' = <b>' + v + '</b>']
+    };
+  };
+
+  function nPr(n, r) { let v = 1; for (let i = 0; i < r; i++) v *= (n - i); return v; }
+  function nCr(n, r) { let v = 1; for (let i = 0; i < r; i++) v = v * (n - i) / (i + 1); return Math.round(v); }
+
+  G['h2-perm-comb'] = function (lvl) {
+    const t = ri(1, 3);
+    if (t === 1) {
+      const n = ri(5, 9), r = ri(2, 4);
+      return {
+        q: '<sub>' + n + '</sub>P<sub>' + r + '</sub> 의 값을 구하시오.',
+        ans: num(nPr(n, r)),
+        sol: ['서로 다른 ' + n + '개에서 ' + r + '개를 순서 있게 뽑는 경우',
+        '= ' + Array.from({ length: r }, (_, i) => n - i).join(' × ') + ' = <b>' + nPr(n, r) + '</b>']
+      };
+    }
+    if (t === 2) {
+      const n = ri(5, 10), r = ri(2, 4);
+      return {
+        q: '<sub>' + n + '</sub>C<sub>' + r + '</sub> 의 값을 구하시오.',
+        ans: num(nCr(n, r)),
+        sol: ['<sub>n</sub>C<sub>r</sub> = ' + H.f('<sub>n</sub>P<sub>r</sub>', 'r!') + ' = ' + H.f(nPr(n, r), nPr(r, r)),
+        '= <b>' + nCr(n, r) + '</b>']
+      };
+    }
+    const b = ri(4, 7), g = ri(3, 6), k = ri(2, 3), j = ri(1, 2);
+    return {
+      q: '남학생 ' + b + '명과 여학생 ' + g + '명 중에서 남학생 ' + k + '명, 여학생 ' + j + '명을 뽑는 경우의 수를 구하시오.',
+      ans: num(nCr(b, k) * nCr(g, j)),
+      sol: ['<sub>' + b + '</sub>C<sub>' + k + '</sub> × <sub>' + g + '</sub>C<sub>' + j + '</sub> = ' +
+        nCr(b, k) + ' × ' + nCr(g, j) + ' = <b>' + (nCr(b, k) * nCr(g, j)) + '</b>']
+    };
+  };
+
+  G['h2-quad-range'] = function (lvl) {
+    const p = rnz(-4, 4), q = rnz(-9, 9);           // 꼭짓점 (p, q)
+    const a = pick([1, 1, -1, 2, -2]);
+    const b = -2 * a * p, c = a * p * p + q;
+    let L = p - ri(1, 4), R = p + ri(1, 4);
+    if (Math.random() < 0.4) { L = p + ri(1, 3); R = L + ri(1, 4); }   // 꼭짓점이 범위 밖인 경우
+    const f = (x) => a * x * x + b * x + c;
+    const cand = [f(L), f(R)];
+    if (L <= p && p <= R) cand.push(f(p));
+    const mx = Math.max.apply(null, cand), mn = Math.min.apply(null, cand);
+    const askMax = Math.random() < 0.5;
+    return {
+      q: '이차함수 y = ' + polyStr([[a, X2], [b, X], [c, '']]) + ' 의 ' + L + ' ≤ x ≤ ' + R +
+        ' 에서의 ' + (askMax ? '최댓값' : '최솟값') + '을 구하시오.',
+      ans: num(askMax ? mx : mn),
+      sol: ['꼭짓점은 (' + p + ', ' + q + ')' + (L <= p && p <= R ? ' — 범위 안에 있다.' : ' — 범위 밖이다.'),
+      'f(' + L + ') = ' + f(L) + ', f(' + R + ') = ' + f(R) + (L <= p && p <= R ? ', f(' + p + ') = ' + f(p) : ''),
+      (askMax ? '최댓값' : '최솟값') + ' = <b>' + (askMax ? mx : mn) + '</b>']
+    };
+  };
+
+  /* ---------- 고3 (1등급) ---------- */
+
+  G['h3-limit'] = function (lvl) {
+    const a = rnz(-6, 6), r = rnz(-8, 8);
+    // (x - a)(x - r) / (x - a)  →  a - r
+    const bx = -(a + r), cc = a * r;
+    return {
+      q: '다음 극한값을 구하시오.<div class="expr">lim<sub>x→' + a + '</sub> ' +
+        H.f(polyStr([[1, X2], [bx, X], [cc, '']]), polyStr([[1, X], [-a, '']])) + '</div>',
+      ans: num(a - r),
+      sol: ['분자를 인수분해하면 ' + bin(1, -a) + bin(1, -r),
+      '(x &minus; ' + a + ') 를 약분하면 x &minus; (' + r + ')',
+      'x → ' + a + ' 를 대입하면 <b>' + (a - r) + '</b>']
+    };
+  };
+
+  G['h3-diff'] = function (lvl) {
+    const a = rnz(-3, 4), b = rnz(-6, 6), c = rnz(-9, 9), d = rnz(-9, 9), k = rnz(-4, 4);
+    const v = 3 * a * k * k + 2 * b * k + c;
+    return {
+      q: '함수 f(x) = ' + polyStr([[a, 'x<sup>3</sup>'], [b, X2], [c, X], [d, '']]) +
+        ' 에 대하여 f\'(' + k + ') 의 값을 구하시오.',
+      ans: num(v),
+      sol: ['f\'(x) = ' + polyStr([[3 * a, X2], [2 * b, X], [c, '']]),
+      'x = ' + k + ' 대입: 3(' + a + ')(' + k + ')² + 2(' + b + ')(' + k + ') + (' + c + ')',
+      '= <b>' + v + '</b>']
+    };
+  };
+
+  G['h3-tangent'] = function (lvl) {
+    const a = pick([1, 1, 2, -1]), b = rnz(-6, 6), c = rnz(-9, 9), k = rnz(-4, 4);
+    const fk = a * k * k + b * k + c, m = 2 * a * k + b;
+    const yi = fk - m * k;
+    const askSlope = Math.random() < 0.4;
+    return {
+      q: '곡선 y = ' + polyStr([[a, X2], [b, X], [c, '']]) + ' 위의 점 (' + k + ', ' + fk + ') 에서의 접선의 ' +
+        (askSlope ? '기울기' : 'y절편') + '을 구하시오.',
+      ans: num(askSlope ? m : yi),
+      sol: ['y\' = ' + polyStr([[2 * a, X], [b, '']]) + ' 이므로 접선의 기울기는 ' + m,
+      '접선: y = ' + m + '(x &minus; (' + k + ')) + (' + fk + ')',
+      (askSlope ? '기울기' : 'y절편') + ' = <b>' + (askSlope ? m : yi) + '</b>']
+    };
+  };
+
+  G['h3-extreme'] = function (lvl) {
+    let al = rnz(-4, 4), be = rnz(-4, 4);
+    let guard = 0;
+    while ((al === be || (al + be) % 2 !== 0) && guard++ < 200) { al = rnz(-4, 4); be = rnz(-4, 4); }
+    if (al === be || (al + be) % 2 !== 0) throw new Error('재생성');
+    if (al > be) { const t = al; al = be; be = t; }
+    const p = -3 * (al + be) / 2, q = 3 * al * be, r = rnz(-9, 9);
+    const f = (x) => x * x * x + p * x * x + q * x + r;
+    const askMax = Math.random() < 0.5;
+    return {
+      q: '함수 f(x) = ' + polyStr([[1, 'x<sup>3</sup>'], [p, X2], [q, X], [r, '']]) + ' 의 ' +
+        (askMax ? '극댓값' : '극솟값') + '을 구하시오.',
+      ans: num(askMax ? f(al) : f(be)),
+      sol: ['f\'(x) = ' + polyStr([[3, X2], [2 * p, X], [q, '']]) + ' = 3' + bin(1, -al) + bin(1, -be),
+      'x = ' + al + ' 에서 극대, x = ' + be + ' 에서 극소',
+      (askMax ? 'f(' + al + ')' : 'f(' + be + ')') + ' = <b>' + (askMax ? f(al) : f(be)) + '</b>']
+    };
+  };
+
+  G['h3-integral'] = function (lvl) {
+    const a = rnz(-3, 4), b = rnz(-6, 6), c = rnz(-9, 9);
+    let p = rnz(-4, 3), q = p + ri(1, 5);
+    const Fx = (x) => new F(a, 3).mul(x * x * x).add(new F(b, 2).mul(x * x)).add(new F(c).mul(x));
+    const v = Fx(q).sub(Fx(p));
+    return {
+      q: '다음 정적분의 값을 구하시오.<div class="expr">∫<sub>' + p + '</sub><sup>' + q + '</sup> (' +
+        polyStr([[a, X2], [b, X], [c, '']]) + ') dx</div><div class="note">분수면 예: 26/3 으로 입력</div>',
+      ans: num(v),
+      sol: ['부정적분: ' + H.f(a, 3) + 'x³ + ' + H.f(b, 2) + 'x² + ' + c + 'x',
+      'x = ' + q + ' 일 때 ' + Fx(q).html() + ', x = ' + p + ' 일 때 ' + Fx(p).html(),
+      '차를 구하면 <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['h3-area'] = function (lvl) {
+    const k = ri(2, 8);
+    const v = new F(k * k * k, 6);
+    return {
+      q: '곡선 y = ' + polyStr([[1, X2], [-k, X]]) + ' 와 x축으로 둘러싸인 부분의 넓이를 구하시오.' +
+        '<div class="note">분수면 예: 32/3 으로 입력</div>',
+      ans: num(v),
+      sol: ['x² &minus; ' + k + 'x = x(x &minus; ' + k + ') = 0 → x = 0, ' + k,
+      '0 ≤ x ≤ ' + k + ' 에서 곡선이 x축 아래에 있으므로',
+      '넓이 = ∫<sub>0</sub><sup>' + k + '</sup>(' + k + 'x &minus; x²)dx = ' + H.f(k + '³', 6) + ' = <b>' + v.html() + '</b>']
+    };
+  };
+
+  G['h3-prob-dist'] = function (lvl) {
+    const w = [ri(1, 5), ri(1, 5), ri(1, 5)];
+    const n = w[0] + w[1] + w[2];
+    const xs = [ri(0, 2), ri(3, 5), ri(6, 9)];
+    const E = new F(xs[0] * w[0] + xs[1] * w[1] + xs[2] * w[2], n);
+    const E2 = new F(xs[0] * xs[0] * w[0] + xs[1] * xs[1] * w[1] + xs[2] * xs[2] * w[2], n);
+    const V = E2.sub(E.mul(E));
+    const askVar = lvl >= 5 && Math.random() < 0.5;
+    const table = '<table class="res" style="max-width:340px;margin:10px auto"><tr><th>X</th>' +
+      xs.map(x => '<th style="text-align:center">' + x + '</th>').join('') + '<th style="text-align:center">합</th></tr>' +
+      '<tr><td>P(X=x)</td>' + w.map(v => '<td class="c">' + H.f(v, n) + '</td>').join('') + '<td class="c">1</td></tr></table>';
+    return {
+      q: '확률변수 X의 확률분포가 다음과 같을 때, ' + (askVar ? 'V(X)' : 'E(X)') + ' 를 구하시오.' + table +
+        '<div class="note">분수면 예: 17/5 로 입력</div>',
+      ans: num(askVar ? V : E),
+      sol: ['E(X) = Σ x·P(X=x) = ' + E.html(),
+        askVar ? ('E(X²) = ' + E2.html() + ', V(X) = E(X²) &minus; {E(X)}² = <b>' + V.html() + '</b>')
+          : ('<b>' + E.html() + '</b>')]
+    };
+  };
+
+  G['h3-normal'] = function (lvl) {
+    const m = ri(4, 20) * 5, sd = pick([2, 4, 5, 8, 10]), k = rnz(-3, 3);
+    const a = m + k * sd;
+    return {
+      q: '확률변수 X가 정규분포 N(' + m + ', ' + sd + '<sup>2</sup>) 를 따를 때, X = ' + a +
+        ' 를 표준화한 값 Z를 구하시오.<div class="note">Z = (X &minus; m) ÷ σ</div>',
+      ans: num(k),
+      sol: ['Z = ' + H.f('X &minus; m', 'σ') + ' = ' + H.f(a + ' &minus; ' + m, sd),
+      '= <b>' + k + '</b>']
+    };
+  };
+
   /* =====================================================================
      유형 카탈로그
      ===================================================================== */
@@ -1261,7 +1598,27 @@
     { id: 'm3-quadfunc-minmax', g: '중3', u: '이차함수', n: '이차함수의 최대·최소', k: '이차함수 최댓값 최솟값' },
     { id: 'm3-trig', g: '중3', u: '삼각비', n: '삼각비', k: '삼각비 sin cos tan 특수각' },
     { id: 'm3-circle', g: '중3', u: '원의 성질', n: '원주각·내접사각형', k: '원주각 중심각 내접 사각형 원의 성질' },
-    { id: 'm3-stat', g: '중3', u: '통계', n: '분산과 표준편차', k: '분산 표준편차 편차 산포도 평균' }
+    { id: 'm3-stat', g: '중3', u: '통계', n: '분산과 표준편차', k: '분산 표준편차 편차 산포도 평균' },
+
+    { id: 'h2-exp-root', g: '고2', u: '지수와 로그', n: '지수법칙·거듭제곱근', k: '지수 거듭제곱근 유리수지수' },
+    { id: 'h2-log-basic', g: '고2', u: '지수와 로그', n: '로그의 계산', k: '로그 log 밑변환 성질' },
+    { id: 'h2-log-eq', g: '고2', u: '지수와 로그', n: '로그방정식', k: '로그방정식 진수 정의' },
+    { id: 'h2-trig-value', g: '고2', u: '삼각함수', n: '삼각함수의 값·사분면', k: '삼각함수 사분면 sin cos tan 부호' },
+    { id: 'h2-trig-graph', g: '고2', u: '삼각함수', n: '삼각함수의 최대·최소·주기', k: '삼각함수 그래프 주기 진폭 최댓값' },
+    { id: 'h2-seq-arith', g: '고2', u: '수열', n: '등차수열', k: '등차수열 일반항 합 공차' },
+    { id: 'h2-seq-geo', g: '고2', u: '수열', n: '등비수열', k: '등비수열 일반항 합 공비' },
+    { id: 'h2-sigma', g: '고2', u: '수열', n: '시그마(Σ) 계산', k: '시그마 수열의 합 자연수 거듭제곱의 합' },
+    { id: 'h2-perm-comb', g: '고2', u: '경우의 수', n: '순열과 조합', k: '순열 조합 nPr nCr 경우의 수' },
+    { id: 'h2-quad-range', g: '고2', u: '함수', n: '제한범위 이차함수 최대·최소', k: '이차함수 최대 최소 범위 꼭짓점' },
+
+    { id: 'h3-limit', g: '고3', u: '극한', n: '함수의 극한', k: '극한 lim 부정형 인수분해' },
+    { id: 'h3-diff', g: '고3', u: '미분', n: '도함수와 미분계수', k: '미분 도함수 미분계수 접선' },
+    { id: 'h3-tangent', g: '고3', u: '미분', n: '접선의 방정식', k: '접선 기울기 y절편 미분' },
+    { id: 'h3-extreme', g: '고3', u: '미분', n: '극대·극소', k: '극댓값 극솟값 삼차함수 증감' },
+    { id: 'h3-integral', g: '고3', u: '적분', n: '정적분 계산', k: '정적분 적분 부정적분' },
+    { id: 'h3-area', g: '고3', u: '적분', n: '곡선과 x축 사이의 넓이', k: '넓이 정적분 곡선 x축' },
+    { id: 'h3-prob-dist', g: '고3', u: '확률과 통계', n: '확률분포 · 기댓값', k: '확률변수 기댓값 분산 확률분포' },
+    { id: 'h3-normal', g: '고3', u: '확률과 통계', n: '정규분포 표준화', k: '정규분포 표준화 표준정규분포 Z' }
   ];
   CATALOG.forEach(c => { c.gen = G[c.id]; });
   const BY_ID = {};
@@ -1335,14 +1692,19 @@
   function makeProblem(typeId, lvl) {
     const c = BY_ID[typeId];
     if (!c) return null;
+    lvl = lvl || 2;
+    // 중등 유형은 3단계가 최고 난이도. 4·5단계를 골라도 3단계로 출제한다.
+    const useLvl = (c.g === '고2' || c.g === '고3') ? lvl : Math.min(lvl, 3);
     let p = null;
-    for (let i = 0; i < 40 && !p; i++) { try { p = c.gen(lvl || 2); } catch (e) { p = null; } }
+    for (let i = 0; i < 40 && !p; i++) { try { p = c.gen(useLvl); } catch (e) { p = null; } }
     if (!p) return null;
-    p.typeId = typeId; p.typeName = c.n; p.unit = c.u; p.grade = c.g; p.level = lvl || 2;
+    p.typeId = typeId; p.typeName = c.n; p.unit = c.u; p.grade = c.g; p.level = lvl;
     return p;
   }
 
-  const API = { F, H, CATALOG, BY_ID, makeProblem, check, answerText, parseNum, parseList, polyStr, gcd, rnd, setSeed };
+  const LEVEL_GRADES = { 1: ['중1','중2','중3'], 2: ['중1','중2','중3'], 3: ['중1','중2','중3'],
+                       4: ['고2'], 5: ['고3'] };
+  const API = { F, H, CATALOG, BY_ID, LEVEL_GRADES, makeProblem, check, answerText, parseNum, parseList, polyStr, gcd, rnd, setSeed };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   root.QGEN = API;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1397,7 +1759,10 @@
     return c;
   }
 
-  var LEVELNAME = {1:'기본',2:'표준',3:'심화'};
+  var LEVELNAME = {1:'기본',2:'표준',3:'심화',4:'심화 2단계',5:'1등급'};
+  var GRADEHEAD = {'중1':'중1','중2':'중2','중3':'중3',
+                   '고2':'고2 · 심화 2단계','고3':'고3 · 1등급'};
+  var GRADES = ['중1','중2','중3','고2','고3'];
   function showLinkCard(cfg){
     S.selected = {}; Object.keys(cfg.types).forEach(function(id){ S.selected[id] = cfg.types[id]; });
     S.count = cfg.n; S.level = cfg.lv; S.title = cfg.title;
@@ -1468,7 +1833,7 @@
   });
 
   /* ---------- 유형 선택 ---------- */
-  $('btnManual').addEventListener('click', function(){ renderTypes(); show('select'); });
+  $('btnManual').addEventListener('click', function(){ renderTypes(); levelHint(); show('select'); });
   $('btnBackHome').addEventListener('click', function(){ show('home'); });
   $('btnHome2').addEventListener('click', function(){ show('home'); });
 
@@ -1476,8 +1841,9 @@
     var byGrade = {};
     Q.CATALOG.forEach(function(c){ (byGrade[c.g] = byGrade[c.g]||[]).push(c); });
     var html = '';
-    ['중1','중2','중3'].forEach(function(g){
-      html += '<div class="gradehead"><h3>'+g+'</h3><span>' +
+    GRADES.forEach(function(g){
+      if(!byGrade[g]) return;
+      html += '<div class="gradehead"><h3>'+GRADEHEAD[g]+'</h3><span>' +
               '<button class="btn ghost sm" data-all="'+g+'">전체</button> ' +
               '<button class="btn ghost sm" data-none="'+g+'">해제</button></span></div>';
       var byUnit = {};
@@ -1495,7 +1861,7 @@
       el.onclick = function(){
         var id = el.dataset.t;
         if(S.selected[id]) delete S.selected[id]; else S.selected[id] = 1;
-        el.classList.toggle('on'); updateCount();
+        el.classList.toggle('on'); updateCount(); levelHint();
       };
     });
     Array.prototype.forEach.call($('typeList').querySelectorAll('[data-all]'), function(el){
@@ -1510,6 +1876,23 @@
     var n = Object.keys(S.selected).length;
     $('selCount').textContent = n ? '(' + n + '개 선택)' : '';
   }
+
+  function levelHint(){
+    var lv = parseInt($('level').value,10);
+    var want = QGEN.LEVEL_GRADES[lv] || [];
+    var has = Object.keys(S.selected).some(function(id){ return want.indexOf(Q.BY_ID[id].g) >= 0; });
+    if(lv <= 3 || has){ msg('lvHint','',''); return; }
+    var g = want[0];
+    msg('lvHint','info', '<b>' + LEVELNAME[lv] + '</b> 난이도는 ' + g + ' 과정 유형에서 나옵니다. ' +
+      '지금 고른 중등 유형은 최고 난이도(심화)로 출제됩니다.<br>' +
+      '<button class="btn ghost sm" id="btnPickGrade" style="margin-top:9px">' + g + ' 유형 전체 선택</button>');
+    var b = $('btnPickGrade');
+    if(b) b.onclick = function(){
+      Q.CATALOG.forEach(function(c){ if(c.g === g) S.selected[c.id] = S.selected[c.id] || 1; });
+      renderTypes(); levelHint();
+    };
+  }
+  $('level').addEventListener('change', levelHint);
 
   $('btnMakeLink').addEventListener('click', function(){
     if(!Object.keys(S.selected).length){ msg('selMsg','err','유형을 먼저 고르세요.'); return; }
