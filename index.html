@@ -145,6 +145,13 @@
       <button class="btn wide" id="btnStartLink" style="margin-top:16px">시험 시작하기</button>
     </div>
 
+    <div class="card" id="upCard">
+      <h2>📷 오답 사진 올리기</h2>
+      <p class="desc">틀린 문제를 사진으로 찍어 올리면 선생님 컴퓨터로 바로 전달됩니다. 그 문제에 맞는 새 시험이 만들어져요.</p>
+      <button class="btn wide" id="btnUpload">사진 올리러 가기</button>
+      <div id="upMsg"></div>
+    </div>
+
     <div class="card" id="pickCard">
       <h2>직접 골라서 풀기</h2>
       <p class="desc">연습하고 싶은 유형을 골라 바로 풀 수 있어요. 문제는 풀 때마다 숫자가 새로 만들어집니다.</p>
@@ -1341,7 +1348,42 @@
   (function initFromUrl(){
     var cfg = parseCode(location.hash) || parseCode(location.search);
     if(cfg) showLinkCard(cfg);
+    S.upUrl = readParam('up');
   })();
+
+  /* ---------- 사진 업로드 주소 ---------- */
+  function readParam(key){
+    var raw = (location.hash || '').replace(/^#/,'') + '&' + (location.search || '').replace(/^\?/,'');
+    var m = raw.match(new RegExp('(?:^|&)' + key + '=([^&]*)'));
+    if(!m) return '';
+    var v = decodeURIComponent(m[1].replace(/\+/g,' ')).trim();
+    return /^https?:\/\/[^\s]+$/.test(v) ? v : '';
+  }
+  function getUploadUrl(cb){
+    if(S.upUrl) { cb(S.upUrl); return; }
+    // 저장소에 올려둔 up.txt 에서 현재 주소를 읽는다 (수신기를 켤 때마다 갱신됨)
+    var done = false, to = setTimeout(function(){ if(!done){ done = true; cb(null); } }, 7000);
+    fetch('up.txt', { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(t){
+        if(done) return; done = true; clearTimeout(to);
+        var u = String(t||'').split(/\s+/).filter(function(x){ return /^https?:\/\//.test(x); })[0];
+        cb(u || null);
+      })
+      .catch(function(){ if(!done){ done = true; clearTimeout(to); cb(null); } });
+  }
+  $('btnUpload').addEventListener('click', function(){
+    var b = $('btnUpload');
+    b.disabled = true; b.textContent = '여는 중…'; msg('upMsg','','');
+    getUploadUrl(function(url){
+      b.disabled = false; b.textContent = '사진 올리러 가기';
+      if(url){ location.href = url; }
+      else {
+        msg('upMsg','err','지금은 사진을 받을 수 없습니다. 선생님 컴퓨터의 <b>수신기</b>가 꺼져 있을 수 있어요. ' +
+          '선생님께 알려주시거나, 잠시 뒤 다시 눌러보세요.');
+      }
+    });
+  });
 
   $('btnStartLink').addEventListener('click', function(){
     startQuiz(buildProblems(Object.keys(S.selected), S.count, S.level));
