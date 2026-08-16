@@ -1227,6 +1227,455 @@
     };
   };
 
+  /* =====================================================================
+     중3 이차방정식 심화 (RPM 발전문제·실력UP 수준)
+     ===================================================================== */
+
+  /* ① 중근 조건으로 상수 구하기 */
+  G['s3-double-cond'] = function (lvl) {
+    const p = pick([1, 2, 3]), q = ri(1, 6), s = rnz(-9, 9);
+    const A = p * p, B = -2 * p * q, k = q * q - s;      // Ax² + Bx + (k + s) = 0 이 중근
+    const root = new F(q, p);
+    const ask = ri(1, 3);
+    const eq = polyStr([[A, X2], [B, X]]) + ' + k ' + (s >= 0 ? '+ ' + s : '&minus; ' + (-s)) + ' = 0';
+    if (ask === 1) return {
+      q: '이차방정식 ' + eq + ' 이 중근을 가질 때, 상수 k의 값을 구하시오.',
+      ans: num(k),
+      sol: ['중근 조건: (일차항 계수)² = 4 × (이차항 계수) × (상수항)',
+      '(' + B + ')² = 4 × ' + A + ' × (k ' + (s >= 0 ? '+ ' + s : '&minus; ' + (-s)) + ')',
+        (B * B) + ' = ' + (4 * A) + 'k ' + (s >= 0 ? '+ ' + (4 * A * s) : '&minus; ' + (4 * A * -s)),
+      'k = <b>' + k + '</b>']
+    };
+    if (ask === 2) return {
+      q: '이차방정식 ' + eq + ' 이 중근 x = a 를 가질 때, a의 값을 구하시오. (k는 상수)' +
+        '<div class="note">분수면 예: 1/3 로 입력</div>',
+      ans: num(root),
+      sol: ['중근일 때 ' + polyStr([[A, X2], [B, X]]) + ' + (상수) = (' + p + 'x &minus; ' + q + ')²',
+      '중근은 ' + p + 'x &minus; ' + q + ' = 0 에서 x = <b>' + root.html() + '</b>']
+    };
+    return {
+      q: '이차방정식 ' + eq + ' 이 중근 x = a 를 가질 때, ak 의 값을 구하시오. (k는 상수)' +
+        '<div class="note">분수면 예: -3/2 로 입력</div>',
+      ans: num(root.mul(k)),
+      sol: ['중근 조건에서 k = ' + k, '중근 x = a = ' + root.html(),
+      'ak = ' + root.html() + ' × ' + k + ' = <b>' + root.mul(k).html() + '</b>']
+    };
+  };
+
+  /* ② 근을 가질 조건 (판별식 ≥ 0) → 자연수의 개수 */
+  G['s3-has-root'] = function (lvl) {
+    const A = ri(1, 4), C = ri(1, 3), n = ri(2, 9);
+    // A·m·x² − B x + C = 0 이 근을 가지려면 B² ≥ 4ACm → m ≤ B²/(4AC)
+    let B = 0, guard = 0, bound = 0;
+    do {
+      B = ri(3, 14);
+      bound = (B * B) / (4 * A * C);
+      guard++;
+    } while ((Math.floor(bound) < 2 || Math.floor(bound) > 12 || Number.isInteger(bound)) && guard < 300);
+    if (Number.isInteger(bound) || Math.floor(bound) < 2) throw new Error('재생성');
+    const cnt = Math.floor(bound);
+    return {
+      q: '이차방정식 ' + (A === 1 ? '' : A) + 'mx<sup>2</sup> &minus; ' + B + 'x + ' + C +
+        ' = 0 이 근을 갖도록 하는 자연수 m의 개수를 구하시오.',
+      ans: num(cnt),
+      sol: ['근을 가지려면 (일차항 계수)² &minus; 4(이차항 계수)(상수항) ≥ 0',
+      '(' + B + ')² &minus; 4 × ' + A + 'm × ' + C + ' ≥ 0',
+        (B * B) + ' ≥ ' + (4 * A * C) + 'm  →  m ≤ ' + H.f(B * B, 4 * A * C) + ' = ' + (Math.round(bound * 1000) / 1000),
+      '자연수 m = 1, 2, …, ' + cnt + ' 이므로 <b>' + cnt + '</b>개']
+    };
+  };
+
+  /* ③ 근을 갖지 않을 조건 */
+  G['s3-no-root'] = function (lvl) {
+    const b = rnz(-12, 12);
+    const k = Math.floor(b * b / 4) + 1;
+    return {
+      q: '이차방정식 ' + polyStr([[1, X2], [b, X]]) + ' + k = 0 이 근을 갖지 않도록 하는 가장 작은 정수 k의 값을 구하시오.',
+      ans: num(k),
+      sol: ['근을 갖지 않으려면 (' + b + ')² &minus; 4k < 0',
+        (b * b) + ' < 4k  →  k > ' + H.f(b * b, 4),
+      '이를 만족하는 가장 작은 정수는 <b>' + k + '</b>']
+    };
+  };
+
+  /* ④ 한 근이 다른 근의 n배 */
+  G['s3-root-ratio'] = function (lvl) {
+    const n = ri(2, 4), a = rnz(-6, 6);
+    const r1 = a, r2 = n * a;
+    const b = -(r1 + r2), k = r1 * r2;
+    return {
+      q: '이차방정식 ' + polyStr([[1, X2], [b, X]]) + ' + k = 0 의 한 근이 다른 근의 ' + n +
+        '배일 때, 상수 k의 값을 구하시오.',
+      ans: num(k),
+      sol: ['두 근을 α, ' + n + 'α 라 하면 두 근의 합 = ' + (1 + n) + 'α = ' + (-b),
+      'α = ' + r1 + ' 이므로 두 근은 ' + r1 + ', ' + r2,
+      'k = (두 근의 곱) = ' + r1 + ' × ' + r2 + ' = <b>' + k + '</b>']
+    };
+  };
+
+  /* ⑤ 두 근이 주어진 이차방정식 만들기 (2단계) */
+  G['s3-make-eq'] = function (lvl) {
+    let p = ri(2, 5), q = ri(2, 5);
+    let guard = 0;
+    while (p === q && guard++ < 50) q = ri(2, 6);
+    if (p === q) throw new Error('재생성');
+    const A = p * q;                       // A x² + ax + b = 0 의 두 근이 1/p, 1/q
+    const a = -(q + p), b = 1;
+    const S = a + b, P = a * b;
+    const correct = polyStr([[1, X2], [-S, X], [P, '']]) + ' = 0';
+    const wrongs = [
+      polyStr([[1, X2], [S, X], [P, '']]) + ' = 0',
+      polyStr([[1, X2], [-S, X], [-P, '']]) + ' = 0',
+      polyStr([[1, X2], [S, X], [-P, '']]) + ' = 0',
+      polyStr([[1, X2], [-P, X], [S, '']]) + ' = 0'
+    ];
+    return {
+      q: '이차방정식 ' + A + 'x<sup>2</sup> + ax + b = 0 의 두 근이 ' + H.f(1, p) + ', ' + H.f(1, q) +
+        ' 일 때, a와 b를 두 근으로 하고 x<sup>2</sup>의 계수가 1인 이차방정식을 고르시오. (a, b는 상수)',
+      ans: choice(correct, wrongs),
+      sol: ['두 근의 합 ' + H.f(1, p) + ' + ' + H.f(1, q) + ' = &minus;' + H.f('a', A) + ' → a = ' + a,
+      '두 근의 곱 ' + H.f(1, p) + ' × ' + H.f(1, q) + ' = ' + H.f('b', A) + ' → b = ' + b,
+      'a = ' + a + ', b = ' + b + ' 를 두 근으로 하면 x² &minus; (' + S + ')x + (' + P + ') = 0',
+      '= <b>' + correct + '</b>']
+    };
+  };
+
+  /* ⑥ 잘못 보고 푼 이차방정식 */
+  G['s3-wrong-read'] = function (lvl) {
+    let r1 = rnz(-9, 9), r2 = rnz(-9, 9), guard = 0;
+    let cand = null;
+    while (guard++ < 400) {
+      r1 = rnz(-9, 9); r2 = rnz(-9, 9);
+      if (r1 === r2) continue;
+      const c = r1 * r2, S = r1 + r2;
+      // 상수항은 맞게 본 학생: 두 근의 곱이 c
+      const A = [];
+      for (let u = -20; u <= 20; u++) {
+        if (u === 0) continue;
+        if (c % u !== 0) continue;
+        const v = c / u;
+        if (Math.abs(v) > 20) continue;
+        if ((u === r1 && v === r2) || (u === r2 && v === r1)) continue;
+        A.push([u, v]);
+      }
+      // x의 계수는 맞게 본 학생: 두 근의 합이 S
+      const B = [];
+      for (let u = -15; u <= 15; u++) {
+        const v = S - u;
+        if (Math.abs(v) > 15) continue;
+        if ((u === r1 && v === r2) || (u === r2 && v === r1)) continue;
+        B.push([u, v]);
+      }
+      if (A.length && B.length) { cand = { r1, r2, c, S, A: pick(A), B: pick(B) }; break; }
+    }
+    if (!cand) throw new Error('재생성');
+    const bx = -cand.S;
+    return {
+      q: 'x<sup>2</sup>의 계수가 1인 이차방정식을 푸는데, 서윤이는 x의 계수를 잘못 보고 풀어서 해를 ' +
+        'x = ' + cand.A[0] + ' 또는 x = ' + cand.A[1] + ' 로 구하였고, 현우는 상수항을 잘못 보고 풀어서 해를 ' +
+        'x = ' + cand.B[0] + ' 또는 x = ' + cand.B[1] + ' 로 구하였다. 처음 이차방정식의 해를 구하시오.' +
+        '<div class="note">두 근을 쉼표로 구분 (예: 2, -3)</div>',
+      ans: set([cand.r1, cand.r2]),
+      sol: ['서윤이는 상수항은 바르게 보았으므로 상수항 = ' + cand.A[0] + ' × ' + cand.A[1] + ' = ' + cand.c,
+      '현우는 x의 계수는 바르게 보았으므로 (두 근의 합) = ' + cand.B[0] + ' + (' + cand.B[1] + ') = ' + cand.S +
+      ' → x의 계수 = ' + bx,
+      '처음 방정식: ' + polyStr([[1, X2], [bx, X], [cand.c, '']]) + ' = 0',
+      'x = <b>' + cand.r1 + '</b> 또는 x = <b>' + cand.r2 + '</b>']
+    };
+  };
+
+  /* ⑦ 분수·소수 계수 이차방정식 */
+  G['s3-frac-eq'] = function (lvl) {
+    if (Math.random() < 0.5) {
+      // (x − p)²/2 = (x² + q)/3  →  두 근은 3p ± 2u
+      const p = ri(1, 5), u = ri(1, 4);
+      const q = 2 * u * u - 3 * p * p;
+      const r1 = 3 * p - 2 * u, r2 = 3 * p + 2 * u;
+      return {
+        q: '이차방정식을 푸시오.<div class="expr">' + H.f('(x &minus; ' + p + ')<sup>2</sup>', 2) + ' = ' +
+          H.f(polyStr([[1, X2], [q, '']]), 3) + '</div><div class="note">두 근을 쉼표로 구분</div>',
+        ans: set([r1, r2]),
+        sol: ['양변에 6을 곱하면 3(x &minus; ' + p + ')² = 2(' + polyStr([[1, X2], [q, '']]) + ')',
+          '3x² &minus; ' + (6 * p) + 'x + ' + (3 * p * p) + ' = 2x² + ' + (2 * q),
+        polyStr([[1, X2], [-6 * p, X], [3 * p * p - 2 * q, '']]) + ' = 0',
+        'x = <b>' + r1 + '</b> 또는 x = <b>' + r2 + '</b>']
+      };
+    }
+    // 소수 계수: 0.0p² x² − ... , 두 근의 차를 묻는다
+    const p = pick([2, 3, 4, 5]), qq = ri(1, 6), r = ri(1, 6);
+    const A = p * p, B = p * (r - qq), C = -qq * r;      // (px − q)(px + r) = 0
+    const diff = new F(qq + r, p);
+    const dec = (v, d) => {
+      const s = (Math.abs(v) / Math.pow(10, d)).toFixed(d);
+      return (v < 0 ? '&minus;' : '') + s;
+    };
+    return {
+      q: '이차방정식 ' + dec(A, 2) + 'x<sup>2</sup> ' + (B >= 0 ? '+ ' + dec(B, 2) : '&minus; ' + dec(-B, 2)) +
+        'x ' + (C >= 0 ? '+ ' + dec(C, 2) : '&minus; ' + dec(-C, 2)) + ' = 0 의 두 근의 차를 구하시오.' +
+        '<div class="note">분수면 예: 5/3 로 입력</div>',
+      ans: num(diff),
+      sol: ['양변에 100을 곱하면 ' + polyStr([[A, X2], [B, X], [C, '']]) + ' = 0',
+      '인수분해하면 (' + p + 'x &minus; ' + qq + ')(' + p + 'x + ' + r + ') = 0',
+      'x = ' + new F(qq, p).html() + ' 또는 x = ' + new F(-r, p).html(),
+      '두 근의 차 = <b>' + diff.html() + '</b>']
+    };
+  };
+
+  /* ⑧ 치환하여 푸는 이차방정식 */
+  G['s3-substitute'] = function (lvl) {
+    if (Math.random() < 0.55) {
+      const k = rnz(-5, 5);
+      let m = rnz(-6, 6), n = rnz(-6, 6), guard = 0;
+      while (m === n && guard++ < 50) n = rnz(-6, 6);
+      if (m === n) throw new Error('재생성');
+      const b = -(m + n), c = m * n;
+      return {
+        q: '이차방정식을 푸시오.<div class="expr">(x ' + (k >= 0 ? '&minus; ' + k : '+ ' + (-k)) + ')<sup>2</sup> ' +
+          (b >= 0 ? '+ ' + b : '&minus; ' + (-b)) + '(x ' + (k >= 0 ? '&minus; ' + k : '+ ' + (-k)) + ') ' +
+          (c >= 0 ? '+ ' + c : '&minus; ' + (-c)) + ' = 0</div><div class="note">두 근을 쉼표로 구분</div>',
+        ans: set([k + m, k + n]),
+        sol: ['x ' + (k >= 0 ? '&minus; ' + k : '+ ' + (-k)) + ' = A 로 놓으면 ' + polyStr([[1, 'A<sup>2</sup>'], [b, 'A'], [c, '']]) + ' = 0',
+        '(A &minus; ' + m + ')(A &minus; ' + n + ') = 0 → A = ' + m + ' 또는 ' + n,
+        'x = ' + k + ' + A 이므로 x = <b>' + (k + m) + '</b> 또는 x = <b>' + (k + n) + '</b>']
+      };
+    }
+    // 3(a−b)² − 10(a−b) − 8 = 0 이고 a+b = S 일 때 a
+    const d = ri(2, 6);                       // a − b = d (정수 근)
+    const e = ri(2, 5);                       // 다른 근은 −1/e 꼴이 되도록
+    const A2 = e, B2 = -(e * d - 1), C2 = -d; // e·A² − (ed−1)A − d = 0 → A = d, −1/e
+    let S = ri(4, 20);
+    if ((S + d) % 2 !== 0) S += 1;
+    const a = (S + d) / 2, b = (S - d) / 2;
+    return {
+      q: '두 수 a, b에 대하여 ' + polyStr([[A2, '(a &minus; b)<sup>2</sup>'], [B2, '(a &minus; b)'], [C2, '']]) +
+        ' = 0 이고 a + b = ' + S + ' 일 때, a의 값을 구하시오. (단, a > b 이고 a &minus; b 는 정수)',
+      ans: num(a),
+      sol: ['a &minus; b = A 로 놓으면 ' + polyStr([[A2, 'A<sup>2</sup>'], [B2, 'A'], [C2, '']]) + ' = 0',
+      '(A &minus; ' + d + ')(' + e + 'A + 1) = 0 → A = ' + d + ' 또는 A = &minus;' + H.f(1, e),
+      'A는 정수이므로 a &minus; b = ' + d + ', a + b = ' + S,
+      '두 식을 더하면 2a = ' + (S + d) + ' → a = <b>' + a + '</b>']
+    };
+  };
+
+  /* ⑨ 근의 공식에서 계수 찾기 */
+  G['s3-irrational'] = function (lvl) {
+    const D = ri(2, 6), m = ri(2, 8), C = -ri(1, 9);
+    const b = m * m - D * C;                 // Dx² − 2m x + C = 0 → x = (m ± √b)/D
+    return {
+      q: '이차방정식 ax<sup>2</sup> &minus; ' + (2 * m) + 'x ' + (C >= 0 ? '+ ' + C : '&minus; ' + (-C)) +
+        ' = 0 의 근이 x = ' + H.f(m + ' ± ' + H.rad('b'), D) + ' 일 때, 유리수 a, b에 대하여 a + b 의 값을 구하시오.',
+      ans: num(D + b),
+      sol: ['근의 공식: x = ' + H.f((2 * m) + ' ± ' + H.rad((4 * m * m) + ' &minus; 4a(' + C + ')'), '2a') +
+        ' = ' + H.f(m + ' ± ' + H.rad(m * m + ' &minus; a(' + C + ')'), 'a'),
+      '분모를 비교하면 a = ' + D,
+      'b = ' + (m * m) + ' &minus; ' + D + ' × (' + C + ') = ' + b,
+      'a + b = <b>' + (D + b) + '</b>']
+    };
+  };
+
+  /* ⑩ 활용 — 연속하는 수 */
+  G['s3-word-consec'] = function (lvl) {
+    const t = ri(1, 4);
+    if (t === 1) {
+      const n = ri(3, 12);                      // 연속하는 세 자연수 n−1, n, n+1
+      const d = 3 * (n - 1) * n - (n + 1) * (n + 1);
+      if (d <= 0) return G['s3-word-consec'](lvl);
+      return {
+        q: '연속하는 세 자연수가 있다. 가장 큰 수의 제곱이 다른 두 수의 곱의 3배보다 ' + d +
+          '만큼 작을 때, 이 세 자연수의 합을 구하시오.',
+        ans: num(3 * n),
+        sol: ['세 수를 x&minus;1, x, x+1 이라 하면 (x+1)² = 3(x&minus;1)x &minus; ' + d,
+        'x² + 2x + 1 = 3x² &minus; 3x &minus; ' + d + '  →  2x² &minus; 5x &minus; ' + (d + 1) + ' = 0',
+        'x는 자연수이므로 x = ' + n + ', 세 수는 ' + (n - 1) + ', ' + n + ', ' + (n + 1),
+        '합 = <b>' + (3 * n) + '</b>']
+      };
+    }
+    if (t === 2) {
+      const k = ri(1, 9), a = 2 * k - 1, b = a + 2;   // 연속하는 두 홀수
+      const S = a * a + b * b;
+      return {
+        q: '자연수 중 연속하는 두 홀수의 제곱의 합이 ' + S + '일 때, 두 수 중 큰 수를 구하시오.',
+        ans: num(b),
+        sol: ['두 홀수를 x, x+2 라 하면 x² + (x+2)² = ' + S,
+        '2x² + 4x + 4 = ' + S + '  →  x² + 2x &minus; ' + ((S - 4) / 2) + ' = 0',
+        'x는 자연수이므로 x = ' + a + ', 큰 수는 <b>' + b + '</b>']
+      };
+    }
+    if (t === 3) {
+      const n = ri(5, 20), P = n * (n + 1);
+      return {
+        q: '책상 위에 펼쳐져 있는 어떤 책의 두 면의 쪽수의 곱이 ' + P + '이었다. 이 두 면의 쪽수의 합을 구하시오.',
+        ans: num(2 * n + 1),
+        sol: ['두 쪽수를 x, x+1 이라 하면 x(x+1) = ' + P,
+        'x² + x &minus; ' + P + ' = 0 → (x &minus; ' + n + ')(x + ' + (n + 1) + ') = 0',
+        'x는 자연수이므로 x = ' + n + ', 합 = ' + n + ' + ' + (n + 1) + ' = <b>' + (2 * n + 1) + '</b>']
+      };
+    }
+    const x = ri(5, 20), diff = 2 * x * x - (x + 2) * (x + 2);
+    if (diff <= 0) return G['s3-word-consec'](lvl);
+    return {
+      q: '어떤 자연수를 제곱해서 2배를 해야 하는데 2를 더하여 제곱하였더니 원래 구하려던 값보다 ' + diff +
+        '만큼 작아졌다. 어떤 자연수를 구하시오.',
+      ans: num(x),
+      sol: ['어떤 자연수를 x라 하면 2x² &minus; (x+2)² = ' + diff,
+      'x² &minus; 4x &minus; ' + (diff + 4) + ' = 0',
+      'x는 자연수이므로 x = <b>' + x + '</b>']
+    };
+  };
+
+  /* ⑪ 활용 — 두 자리 자연수 */
+  G['s3-word-digit'] = function (lvl) {
+    let guard = 0;
+    while (guard++ < 400) {
+      const a = ri(1, 9), b = ri(0, 9);
+      const N = 10 * a + b, S = a + b, D = N - a * b;
+      if (D <= 0) continue;
+      // 십의 자리를 x라 하면 x(S−x) = 10x + (S−x) − D  →  x² −(S−9)x + (S−D) ... 해가 유일해야 한다
+      const sols = [];
+      for (let x = 1; x <= 9; x++) {
+        const y = S - x;
+        if (y < 0 || y > 9) continue;
+        if (10 * x + y - x * y === D) sols.push(10 * x + y);
+      }
+      if (sols.length !== 1) continue;
+      return {
+        q: '두 자리 자연수가 있다. 이 수의 십의 자리의 숫자와 일의 자리의 숫자의 합은 ' + S +
+          '이고, 두 숫자의 곱은 이 수보다 ' + D + '만큼 작다고 할 때, 이 수를 구하시오.',
+        ans: num(N),
+        sol: ['십의 자리를 x, 일의 자리를 y라 하면 x + y = ' + S + ' … ①',
+        'xy = (10x + y) &minus; ' + D + ' … ②',
+        '①에서 y = ' + S + ' &minus; x 를 ②에 대입하여 정리하면 이차방정식이 된다.',
+        'x = ' + Math.floor(N / 10) + ', y = ' + (N % 10) + ' 이므로 <b>' + N + '</b>']
+      };
+    }
+    throw new Error('재생성');
+  };
+
+  /* ⑫ 활용 — 종이를 잘라 만든 상자 */
+  G['s3-word-box'] = function (lvl) {
+    if (Math.random() < 0.5) {
+      const c = ri(2, 5), inner = 2 * ri(3, 9), side = inner + 2 * c;
+      const V = c * inner * inner;
+      return {
+        q: '정사각형 모양의 종이의 네 귀퉁이에서 한 변의 길이가 ' + c + ' cm인 정사각형을 각각 잘라 내고, ' +
+          '그 나머지로 뚜껑이 없는 직육면체 모양의 상자를 만들었더니 상자의 부피가 ' + V +
+          ' cm³가 되었다. 이때 처음 정사각형의 한 변의 길이를 구하시오.',
+        ans: num(side),
+        sol: ['처음 한 변을 x cm라 하면 밑면은 한 변이 (x &minus; ' + (2 * c) + ') cm인 정사각형, 높이는 ' + c + ' cm',
+          c + '(x &minus; ' + (2 * c) + ')² = ' + V + '  →  (x &minus; ' + (2 * c) + ')² = ' + (inner * inner),
+        'x &minus; ' + (2 * c) + ' = ' + inner + ' (길이는 양수)',
+        'x = <b>' + side + '</b> cm']
+      };
+    }
+    const h = ri(1, 5);
+    const A = 2 * ri(6, 12), B = 2 * ri(4, 9);
+    if (A - 2 * h <= 0 || B - 2 * h <= 0) return G['s3-word-box'](lvl);
+    const S = (A - 2 * h) * (B - 2 * h);
+    // 다른 근 (A+B)/2 − h 가 실제로 불가능한지 확인
+    return {
+      q: '가로, 세로의 길이가 각각 ' + A + ' cm, ' + B + ' cm인 직사각형 모양의 종이의 네 귀퉁이에서 ' +
+        '크기가 같은 정사각형을 잘라 내고 남은 종이로 뚜껑이 없는 직육면체 모양의 상자를 만들었다. ' +
+        '이 상자의 밑면의 넓이가 ' + S + ' cm²일 때, 상자의 높이를 구하시오.',
+      ans: num(h),
+      sol: ['잘라 낸 정사각형의 한 변을 x cm라 하면 (' + A + ' &minus; 2x)(' + B + ' &minus; 2x) = ' + S,
+      '전개하여 정리하면 4x² &minus; ' + (2 * (A + B)) + 'x + ' + (A * B - S) + ' = 0',
+      'x² &minus; ' + ((A + B) / 2) + 'x + ' + ((A * B - S) / 4) + ' = 0 → (x &minus; ' + h + ')(x &minus; ' +
+      ((A + B) / 2 - h) + ') = 0',
+      '0 < x < ' + (B / 2) + ' 이어야 하므로 x = <b>' + h + '</b> cm']
+    };
+  };
+
+  /* ⑬ 활용 — 쏘아 올린 물체 */
+  G['s3-word-motion'] = function (lvl) {
+    const h0 = pick([0, 5, 10, 15, 20]);
+    const t1 = ri(1, 4), t2 = t1 + ri(1, 5);
+    const v = 5 * (t1 + t2), H = h0 + 5 * t1 * t2;
+    const expr = (h0 ? h0 + ' + ' : '') + v + 't &minus; 5t<sup>2</sup>';
+    if (Math.random() < 0.5) return {
+      q: '지면으로부터 ' + (h0 || 0) + ' m의 높이에서 초속 ' + v + ' m로 똑바로 위로 쏘아 올린 물 로켓의 t초 후의 ' +
+        '지면으로부터의 높이가 (' + expr + ') m일 때, 이 물 로켓이 지면으로부터 ' + H +
+        ' m의 높이에 처음 도달하는 것은 쏘아 올린 지 몇 초 후인지 구하시오.',
+      ans: num(t1),
+      sol: [expr + ' = ' + H + '  →  5t² &minus; ' + v + 't + ' + (H - h0) + ' = 0',
+      't² &minus; ' + (t1 + t2) + 't + ' + (t1 * t2) + ' = 0 → (t &minus; ' + t1 + ')(t &minus; ' + t2 + ') = 0',
+      '처음 도달하는 때이므로 <b>' + t1 + '</b>초 후']
+    };
+    return {
+      q: '지면으로부터 ' + (h0 || 0) + ' m의 높이에서 초속 ' + v + ' m로 똑바로 위로 쏘아 올린 물체의 t초 후의 ' +
+        '높이가 (' + expr + ') m이다. 이 물체가 높이 ' + H + ' m 이상인 지점을 지나는 것은 몇 초 동안인지 구하시오.',
+      ans: num(t2 - t1),
+      sol: [expr + ' ≥ ' + H + ' 의 경계는 (t &minus; ' + t1 + ')(t &minus; ' + t2 + ') = 0',
+      '즉 ' + t1 + '초부터 ' + t2 + '초까지이므로 <b>' + (t2 - t1) + '</b>초 동안']
+    };
+  };
+
+  /* ⑭ 활용 — 가격 인하와 판매량 */
+  G['s3-word-price'] = function (lvl) {
+    if (Math.random() < 0.5) {
+      const a = pick([5, 10, 20]), b = pick([10, 20, 25, 50]);
+      const x = new F(100 * (b - a), a * b);
+      if (x.val() <= 0 || !x.isInt()) return G['s3-word-price'](lvl);
+      return {
+        q: '어느 상점에서 어떤 상품의 가격을 ' + a + 'x %만큼 인하하였더니 판매량이 ' + b +
+          'x %만큼 늘어서 그 상품의 총 판매 금액이 가격 인하 전과 같아졌다고 할 때, x의 값을 구하시오. (x > 0)',
+        ans: num(x),
+        sol: ['가격은 (1 &minus; ' + H.f(a + 'x', 100) + ')배, 판매량은 (1 + ' + H.f(b + 'x', 100) + ')배',
+        '(1 &minus; ' + H.f(a + 'x', 100) + ')(1 + ' + H.f(b + 'x', 100) + ') = 1',
+        '정리하면 ' + (b - a) + 'x &minus; ' + H.f(a * b + 'x²', 100) + ' = 0 → x(' + (100 * (b - a)) + ' &minus; ' + (a * b) + 'x) = 0',
+        'x > 0 이므로 x = <b>' + x.html() + '</b>']
+      };
+    }
+    const price = pick([2000, 3000, 5000]), people = pick([300, 500, 600]), d = pick([5, 10]);
+    // (price + x)(people − x/d) = price × people  →  x = price·? ...
+    const x = d * people - price;
+    if (x <= 0 || x % 1 !== 0) return G['s3-word-price'](lvl);
+    return {
+      q: '1인당 입장료가 ' + price + '원인 고궁에 하루 평균 ' + people + '명이 입장한다고 한다. ' +
+        '1인당 입장료를 x원 올렸더니 입장객 수는 이전보다 하루 평균 ' + H.f('x', d) +
+        '명 감소했지만 입장료 총수입은 변함이 없었다고 한다. 이때 양수 x의 값을 구하시오.',
+      ans: num(x),
+      sol: ['(' + price + ' + x)(' + people + ' &minus; ' + H.f('x', d) + ') = ' + price + ' × ' + people,
+      '전개하여 정리하면 ' + (people - price / d) + 'x &minus; ' + H.f('x²', d) + ' = 0',
+      'x(' + (d * people - price) + ' &minus; x) = 0, x > 0 이므로 x = <b>' + x + '</b>']
+    };
+  };
+
+  /* ⑮ 활용 — 움직이는 점 */
+  G['s3-word-point'] = function (lvl) {
+    const AB = 2 * ri(4, 8), BC = 2 * ri(6, 12);
+    const t1 = ri(1, 4), t2 = AB - t1;
+    if (t1 >= t2 || 2 * t2 > BC) return G['s3-word-point'](lvl);
+    const area = t1 * (AB - t1);
+    return {
+      q: '가로의 길이가 ' + BC + ' cm, 세로의 길이가 ' + AB + ' cm인 직사각형 ABCD에서 점 P는 점 A를 출발하여 ' +
+        '점 B까지 매초 1 cm의 속력으로 <span class="ov2">AB</span> 위를 움직이고, 점 Q는 점 B를 출발하여 ' +
+        '점 C까지 매초 2 cm의 속력으로 <span class="ov2">BC</span> 위를 움직인다. 두 점 P, Q가 동시에 출발하였을 때, ' +
+        '△PBQ의 넓이가 ' + area + ' cm²가 되는 것은 출발한 지 몇 초 후인지 모두 구하시오.' +
+        '<div class="note">두 값을 쉼표로 구분</div>',
+      ans: set([t1, t2]),
+      sol: ['t초 후 <span class="ov2">PB</span> = (' + AB + ' &minus; t) cm, <span class="ov2">BQ</span> = 2t cm',
+      '넓이 = ' + H.f(1, 2) + ' × (' + AB + ' &minus; t) × 2t = t(' + AB + ' &minus; t) = ' + area,
+      't² &minus; ' + AB + 't + ' + area + ' = 0 → (t &minus; ' + t1 + ')(t &minus; ' + t2 + ') = 0',
+      '<b>' + t1 + '</b>초 후 또는 <b>' + t2 + '</b>초 후']
+    };
+  };
+
+  /* ⑯ 활용 — 변하는 직사각형의 넓이 */
+  G['s3-word-rect'] = function (lvl) {
+    const A = ri(10, 20), B = ri(8, 16), a = 1, b = 2;
+    const t = new F(A * b - B * a, a * b);
+    if (!t.isInt() || t.val() <= 0 || t.val() >= A) return G['s3-word-rect'](lvl);
+    return {
+      q: '가로, 세로의 길이가 각각 ' + A + ' cm, ' + B + ' cm인 직사각형에서 가로의 길이는 매초 ' + a +
+        ' cm씩 줄어들고, 세로의 길이는 매초 ' + b + ' cm씩 늘어나고 있다. 이때 처음 직사각형의 넓이와 같아지는 것은 ' +
+        '몇 초 후인지 구하시오.',
+      ans: num(t),
+      sol: ['t초 후 넓이 = (' + A + ' &minus; t)(' + B + ' + 2t) = ' + (A * B),
+      '전개하면 ' + (2 * A - B) + 't &minus; 2t² = 0 → t(' + (2 * A - B) + ' &minus; 2t) = 0',
+      't > 0 이므로 t = <b>' + t.html() + '</b>초 후']
+    };
+  };
+
   /* ---------- 고2 (심화 2단계) ---------- */
 
   G['h2-exp-root'] = function (lvl) {
@@ -1599,6 +2048,23 @@
     { id: 'm3-trig', g: '중3', u: '삼각비', n: '삼각비', k: '삼각비 sin cos tan 특수각' },
     { id: 'm3-circle', g: '중3', u: '원의 성질', n: '원주각·내접사각형', k: '원주각 중심각 내접 사각형 원의 성질' },
     { id: 'm3-stat', g: '중3', u: '통계', n: '분산과 표준편차', k: '분산 표준편차 편차 산포도 평균' },
+
+    { id: 's3-double-cond', g: '중3', u: '이차방정식 심화', n: '중근 조건으로 상수 구하기', k: '중근 판별식 상수 이차방정식 조건' },
+    { id: 's3-has-root', g: '중3', u: '이차방정식 심화', n: '근을 가질 조건 · 자연수 개수', k: '근을 가질 조건 판별식 자연수 개수' },
+    { id: 's3-no-root', g: '중3', u: '이차방정식 심화', n: '근을 갖지 않을 조건', k: '근이 없을 조건 판별식 정수' },
+    { id: 's3-root-ratio', g: '중3', u: '이차방정식 심화', n: '한 근이 다른 근의 n배', k: '두 근의 관계 배수 근과 계수' },
+    { id: 's3-make-eq', g: '중3', u: '이차방정식 심화', n: '두 근으로 이차방정식 만들기', k: '두 근 합 곱 이차방정식 만들기' },
+    { id: 's3-wrong-read', g: '중3', u: '이차방정식 심화', n: '잘못 보고 푼 이차방정식', k: '잘못 보고 푼 계수 상수항 원래 방정식' },
+    { id: 's3-frac-eq', g: '중3', u: '이차방정식 심화', n: '분수·소수 계수 이차방정식', k: '분수계수 소수계수 이차방정식 두 근의 차' },
+    { id: 's3-substitute', g: '중3', u: '이차방정식 심화', n: '치환하여 푸는 이차방정식', k: '치환 공통부분 이차방정식' },
+    { id: 's3-irrational', g: '중3', u: '이차방정식 심화', n: '근의 공식에서 계수 찾기', k: '근의공식 무리수근 계수 구하기' },
+    { id: 's3-word-consec', g: '중3', u: '이차방정식 활용', n: '활용 · 연속하는 수', k: '활용 연속하는 자연수 홀수 쪽수 문장제' },
+    { id: 's3-word-digit', g: '중3', u: '이차방정식 활용', n: '활용 · 두 자리 자연수', k: '활용 두 자리 자연수 자릿수 문장제' },
+    { id: 's3-word-box', g: '중3', u: '이차방정식 활용', n: '활용 · 종이를 잘라 만든 상자', k: '활용 상자 부피 밑넓이 귀퉁이 도형' },
+    { id: 's3-word-motion', g: '중3', u: '이차방정식 활용', n: '활용 · 쏘아 올린 물체', k: '활용 로켓 높이 초속 포물선 운동' },
+    { id: 's3-word-price', g: '중3', u: '이차방정식 활용', n: '활용 · 가격과 판매량', k: '활용 가격 인하 판매량 총수입 입장료' },
+    { id: 's3-word-point', g: '중3', u: '이차방정식 활용', n: '활용 · 움직이는 점', k: '활용 동점 삼각형 넓이 매초 속력' },
+    { id: 's3-word-rect', g: '중3', u: '이차방정식 활용', n: '활용 · 변하는 직사각형의 넓이', k: '활용 직사각형 넓이 변화 매초' },
 
     { id: 'h2-exp-root', g: '고2', u: '지수와 로그', n: '지수법칙·거듭제곱근', k: '지수 거듭제곱근 유리수지수' },
     { id: 'h2-log-basic', g: '고2', u: '지수와 로그', n: '로그의 계산', k: '로그 log 밑변환 성질' },
