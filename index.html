@@ -93,7 +93,7 @@
   .verdict.no{background:var(--badbg);border:1px solid #f6c9c8}
   .verdict .h{font-weight:750;margin-bottom:4px}
   .sol{margin-top:11px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 15px}
-  .sol .t{font-size:12px;color:var(--sub);font-weight:700;margin-bottom:7px}
+  .sol .t{font-size:12px;color:var(--sub);font-weight:700;margin-bottom:7px;letter-spacing:.03em}
   .sol ol{margin:0;padding-left:20px}
   .sol li{margin:5px 0;font-size:15.5px}
 
@@ -117,6 +117,13 @@
   .ov2{border-top:1.2px solid currentColor;padding-top:0}
   sup{font-size:.72em}
   sub{font-size:.72em}
+  .fig{margin:16px auto 4px;text-align:center;color:var(--ink)}
+  .fig svg{width:100%;max-width:300px;height:auto;display:inline-block}
+  .aq .fig svg{max-width:260px}
+  .badge2{display:inline-block;background:#fff4e5;color:#9a5b00;border:1px solid #ffd9a8;
+          border-radius:7px;font-size:11.5px;padding:2px 8px;font-weight:700;margin-left:6px}
+  .again{margin-top:12px;background:#fff8ec;border:1px solid #ffe0b2;color:#8a5300;
+         border-radius:10px;padding:11px 13px;font-size:14px}
   .err{background:var(--badbg);border:1px solid #f6c9c8;color:#992e2c;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
   .info{background:#eef4ff;border:1px solid #cfe0ff;color:#1f3f86;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
   details summary{cursor:pointer;font-size:13.5px;color:var(--sub);font-weight:600;list-style:none;padding:4px 0}
@@ -248,7 +255,7 @@
         <button class="btn wide hide" id="btnNext">다음 문제 →</button>
       </div>
       <div class="row" style="margin-top:9px">
-        <button class="btn ghost sm hide" id="btnMore">이 유형 한 문제 더</button>
+        <button class="btn ghost sm hide" id="btnMore">🔁 비슷한 문제 한 번 더</button>
         <button class="btn ghost sm" id="btnQuit">그만두기</button>
         <button class="btn ghost sm" id="btnAnsQuiz">🔒 답안지</button>
       </div>
@@ -1228,6 +1235,299 @@
   };
 
   /* =====================================================================
+     그림(도형) 문제 — SVG 삽입
+     ===================================================================== */
+  function fig(w, h, body) {
+    return '<div class="fig"><svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" ' +
+      'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">' +
+      body + '</svg></div>';
+  }
+  function svgT(x, y, t, anchor, size) {
+    return '<text x="' + x + '" y="' + y + '" font-size="' + (size || 13) + '" fill="currentColor" stroke="none" ' +
+      'text-anchor="' + (anchor || 'middle') + '" font-family="sans-serif">' + t + '</text>';
+  }
+  function svgDash(d) { return '<path d="' + d + '" stroke-dasharray="4 3" stroke-width="1"/>'; }
+  function svgFill(d, op) { return '<path d="' + d + '" fill="currentColor" fill-opacity="' + (op || 0.14) + '" stroke="none"/>'; }
+
+  /* 그림 ① 나란히 놓인 두 정사각형 */
+  G['g-two-squares'] = function (lvl) {
+    let a = ri(4, 12), b = ri(2, 11);
+    let guard = 0;
+    while ((a <= b || a - b < 2) && guard++ < 200) { a = ri(4, 12); b = ri(2, 11); }
+    if (a <= b) throw new Error('재생성');
+    const L = a + b, S = a * a + b * b;
+    const k = 150 / L, A = a * k, B = b * k, base = 40, y0 = 20;
+    const body =
+      svgFill('M' + base + ' ' + (y0 + A - A) + ' h' + A + ' v' + A + ' h' + (-A) + ' Z', 0.12) +
+      '<rect x="' + base + '" y="' + y0 + '" width="' + A + '" height="' + A + '"/>' +
+      svgFill('M' + (base + A) + ' ' + (y0 + A - B) + ' h' + B + ' v' + B + ' h' + (-B) + ' Z', 0.12) +
+      '<rect x="' + (base + A) + '" y="' + (y0 + A - B) + '" width="' + B + '" height="' + B + '"/>' +
+      svgDash('M' + base + ' ' + (y0 + A + 16) + ' L' + (base + A + B) + ' ' + (y0 + A + 16)) +
+      svgT(base + (A + B) / 2, y0 + A + 32, L + ' cm');
+    return {
+      q: '다음 그림과 같이 두 정사각형이 나란히 놓여 있다. 두 정사각형의 넓이의 합이 ' + S +
+        ' cm²일 때, 큰 정사각형의 한 변의 길이를 구하시오.' + fig(240, y0 + A + 45,
+          body),
+      ans: num(a),
+      sol: [
+        '<b>미지수 정하기</b> — 큰 정사각형의 한 변을 x cm라 하면, 두 변의 합이 ' + L +
+        ' cm이므로 작은 정사각형의 한 변은 (' + L + ' &minus; x) cm이다.',
+        '<b>식 세우기</b> — (두 정사각형의 넓이의 합) = x² + (' + L + ' &minus; x)² = ' + S,
+        '<b>정리하기</b> — x² + ' + (L * L) + ' &minus; ' + (2 * L) + 'x + x² = ' + S +
+        '  →  2x² &minus; ' + (2 * L) + 'x + ' + (L * L - S) + ' = 0',
+        '양변을 2로 나누면 ' + polyStr([[1, X2], [-L, X], [(L * L - S) / 2, '']]) + ' = 0',
+        '<b>인수분해</b> — ' + bin(1, -a) + bin(1, -b) + ' = 0  →  x = ' + a + ' 또는 x = ' + b,
+        '<b>답 고르기</b> — 큰 정사각형의 한 변이므로 x = <b>' + a + '</b> cm',
+        '<b>확인</b> — ' + a + '² + ' + b + '² = ' + (a * a) + ' + ' + (b * b) + ' = ' + S + ' ✓'
+      ]
+    };
+  };
+
+  /* 그림 ② 세 반원으로 이루어진 도형 */
+  G['g-semicircle'] = function (lvl) {
+    let a = 0, b = 0, guard = 0;
+    while (guard++ < 400) {
+      a = ri(4, 14); b = ri(2, 13);
+      if (a > b && (a * b) % 4 === 0) break;
+    }
+    if (!(a > b && (a * b) % 4 === 0)) throw new Error('재생성');
+    const L = a + b, K = a * b / 4;
+    const k = 190 / L, A = a * k, B = b * k, x0 = 25, yb = 92;
+    const R = (A + B) / 2;
+    const body =
+      svgFill('M' + x0 + ' ' + yb + ' a' + R + ' ' + R + ' 0 0 1 ' + (A + B) + ' 0 Z', 0.16) +
+      '<path d="M' + x0 + ' ' + yb + ' a' + (A / 2) + ' ' + (A / 2) + ' 0 0 1 ' + A + ' 0 Z" fill="#fff" stroke="none"/>' +
+      '<path d="M' + (x0 + A) + ' ' + yb + ' a' + (B / 2) + ' ' + (B / 2) + ' 0 0 1 ' + B + ' 0 Z" fill="#fff" stroke="none"/>' +
+      '<path d="M' + x0 + ' ' + yb + ' a' + R + ' ' + R + ' 0 0 1 ' + (A + B) + ' 0"/>' +
+      '<path d="M' + x0 + ' ' + yb + ' a' + (A / 2) + ' ' + (A / 2) + ' 0 0 1 ' + A + ' 0"/>' +
+      '<path d="M' + (x0 + A) + ' ' + yb + ' a' + (B / 2) + ' ' + (B / 2) + ' 0 0 1 ' + B + ' 0"/>' +
+      '<path d="M' + x0 + ' ' + yb + ' L' + (x0 + A + B) + ' ' + yb + '"/>' +
+      svgT(x0 - 8, yb + 5, 'A') + svgT(x0 + A, yb + 18, 'C') + svgT(x0 + A + B + 9, yb + 5, 'B') +
+      svgDash('M' + x0 + ' ' + (yb + 24) + ' L' + (x0 + A + B) + ' ' + (yb + 24)) +
+      svgT(x0 + (A + B) / 2, yb + 40, L + ' cm');
+    return {
+      q: '다음 그림과 같이 세 반원으로 이루어진 도형이 있다. <span class="ov2">AB</span> = ' + L +
+        ' cm이고 색칠한 부분의 넓이가 ' + K + 'π cm²일 때, <span class="ov2">AC</span>의 길이를 구하시오. ' +
+        '(단, <span class="ov2">AC</span> > <span class="ov2">CB</span>)' + fig(240, yb + 52, body),
+      ans: num(a),
+      sol: [
+        '<b>미지수 정하기</b> — <span class="ov2">AC</span> = x cm라 하면 <span class="ov2">CB</span> = (' +
+        L + ' &minus; x) cm',
+        '<b>각 반원의 넓이</b> — 반지름이 지름의 절반이므로 지름 d인 반원의 넓이는 ' + H.f('π', 8) + 'd²',
+        '큰 반원 = ' + H.f('π', 8) + ' × ' + (L * L) + ',  작은 반원 두 개 = ' + H.f('π', 8) + 'x² + ' +
+        H.f('π', 8) + '(' + L + ' &minus; x)²',
+        '<b>식 세우기</b> — (색칠한 부분) = (큰 반원) &minus; (두 작은 반원)',
+        '= ' + H.f('π', 8) + '{' + (L * L) + ' &minus; x² &minus; (' + L + ' &minus; x)²} = ' +
+        H.f('π', 8) + ' × 2x(' + L + ' &minus; x) = ' + H.f('π', 4) + 'x(' + L + ' &minus; x)',
+        '<b>방정식 풀기</b> — ' + H.f(1, 4) + 'x(' + L + ' &minus; x) = ' + K + '  →  ' +
+        polyStr([[1, X2], [-L, X], [4 * K, '']]) + ' = 0',
+        bin(1, -a) + bin(1, -b) + ' = 0  →  x = ' + a + ' 또는 x = ' + b,
+        '<b>답 고르기</b> — <span class="ov2">AC</span> > <span class="ov2">CB</span> 이므로 <b>' + a + '</b> cm'
+      ]
+    };
+  };
+
+  /* 그림 ③ 직각삼각형에 내접한 직사각형 */
+  G['g-inscribed-rect'] = function (lvl) {
+    let p = 0, q = 0, m = 0, hh = 0, guard = 0;
+    while (guard++ < 400) {
+      p = ri(3, 6); q = ri(1, p - 1); m = ri(2, 4); hh = ri(1, 5);
+      if (2 * q < p) break;
+    }
+    if (!(2 * q < p)) throw new Error('재생성');
+    const c = m * p, h = p * hh, x = m * q;      // BC = c, AB = h, BD = x
+    const DE = hh * (p - q), DC = m * (p - q);
+    const S = x * DE, area = DC * DE / 2;
+    if (DE <= 0 || S <= 0) throw new Error('재생성');
+    const sc = 150 / c, cw = c * sc, ch = h * sc > 130 ? 130 : h * sc;
+    const bx = 62, by = 30 + ch, xw = x * sc, dh = DE * (ch / h);
+    const body =
+      '<path d="M' + bx + ' ' + by + ' L' + (bx + cw) + ' ' + by + ' L' + bx + ' ' + (by - ch) + ' Z"/>' +
+      svgFill('M' + (bx + xw) + ' ' + by + ' L' + (bx + cw) + ' ' + by + ' L' + (bx + xw) + ' ' + (by - dh) + ' Z', 0.18) +
+      '<path d="M' + (bx + xw) + ' ' + by + ' L' + (bx + cw) + ' ' + by + ' L' + (bx + xw) + ' ' + (by - dh) + ' Z"/>' +
+      '<rect x="' + bx + '" y="' + (by - dh) + '" width="' + xw + '" height="' + dh + '"/>' +
+      svgT(bx - 9, by + 5, 'B', 'middle') + svgT(bx + cw + 9, by + 5, 'C') +
+      svgT(bx - 9, by - ch + 4, 'A') + svgT(bx + xw, by + 17, 'D') +
+      svgT(bx + xw + 11, by - dh - 5, 'E') + svgT(bx - 10, by - dh + 4, 'F') +
+      svgDash('M' + (bx - 20) + ' ' + by + ' L' + (bx - 20) + ' ' + (by - ch)) +
+      svgT(bx - 26, by - ch / 2, h + ' cm', 'end') +
+      svgDash('M' + bx + ' ' + (by + 24) + ' L' + (bx + cw) + ' ' + (by + 24)) +
+      svgT(bx + cw / 2, by + 40, c + ' cm');
+    return {
+      q: '다음 그림과 같이 <span class="ov2">AB</span> = ' + h + ' cm, <span class="ov2">BC</span> = ' + c +
+        ' cm인 직각삼각형 ABC에서 세 변 BC, AC, AB 위에 각각 점 D, E, F를 잡아서 만든 직사각형 BDEF의 넓이가 ' +
+        S + ' cm²일 때, △EDC의 넓이를 구하시오. (단, <span class="ov2">BD</span> < <span class="ov2">DC</span>)' +
+        fig(250, by + 50, body),
+      ans: num(area),
+      sol: [
+        '<b>미지수 정하기</b> — <span class="ov2">BD</span> = x cm라 하자.',
+        '<b>닮음으로 세로 길이 구하기</b> — △CDE ∽ △CBA 이므로 <span class="ov2">DE</span> : ' +
+        h + ' = (' + c + ' &minus; x) : ' + c,
+        '<span class="ov2">DE</span> = ' + H.f(h + '(' + c + ' &minus; x)', c) + ' cm',
+        '<b>식 세우기</b> — (직사각형 BDEF의 넓이) = x × ' + H.f(h + '(' + c + ' &minus; x)', c) + ' = ' + S,
+        '정리하면 x(' + c + ' &minus; x) = ' + (S * c / h) + '  →  ' +
+        polyStr([[1, X2], [-c, X], [S * c / h, '']]) + ' = 0',
+        '<b>인수분해</b> — ' + bin(1, -x) + bin(1, -(c - x)) + ' = 0  →  x = ' + x + ' 또는 x = ' + (c - x),
+        '<b>답 고르기</b> — <span class="ov2">BD</span> < <span class="ov2">DC</span> 이므로 x = ' + x +
+        ', 이때 <span class="ov2">DE</span> = ' + DE + ' cm, <span class="ov2">DC</span> = ' + DC + ' cm',
+        '<b>넓이 구하기</b> — △EDC = ' + H.f(1, 2) + ' × ' + DC + ' × ' + DE + ' = <b>' + area + '</b> cm²'
+      ]
+    };
+  };
+
+  /* 그림 ④ 꽃밭 둘레의 산책로 */
+  G['g-path'] = function (lvl) {
+    const A = ri(6, 16), B = ri(4, 14), x = ri(1, 4);
+    const P = 2 * x * (A + B) + 4 * x * x;
+    const sc = 150 / (A + 2 * x), ox = 62, oy = 22;
+    const W = (A + 2 * x) * sc, Hh = (B + 2 * x) * sc, ix = x * sc;
+    const body =
+      svgFill('M' + ox + ' ' + oy + ' h' + W + ' v' + Hh + ' h' + (-W) + ' Z', 0.16) +
+      '<rect x="' + ox + '" y="' + oy + '" width="' + W + '" height="' + Hh + '"/>' +
+      '<rect x="' + (ox + ix) + '" y="' + (oy + ix) + '" width="' + (A * sc) + '" height="' + (B * sc) + '" fill="#fff"/>' +
+      svgT(ox + W / 2, oy + Hh / 2 + 5, '꽃밭') +
+      svgDash('M' + (ox + ix) + ' ' + (oy + Hh + 16) + ' L' + (ox + ix + A * sc) + ' ' + (oy + Hh + 16)) +
+      svgT(ox + ix + A * sc / 2, oy + Hh + 32, A + ' m') +
+      svgDash('M' + (ox - 20) + ' ' + (oy + ix) + ' L' + (ox - 20) + ' ' + (oy + ix + B * sc)) +
+      svgT(ox - 26, oy + ix + B * sc / 2 + 4, B + ' m', 'end');
+    return {
+      q: '다음 그림과 같이 가로, 세로의 길이가 각각 ' + A + ' m, ' + B +
+        ' m인 직사각형 모양의 꽃밭의 주위에 폭이 일정한 산책로를 만들었더니 산책로의 넓이가 ' + P +
+        ' m²이었다. 산책로의 폭은 몇 m인지 구하시오.' + fig(250, oy + Hh + 42, body),
+      ans: num(x),
+      sol: [
+        '<b>미지수 정하기</b> — 산책로의 폭을 x m라 하자.',
+        '<b>전체 직사각형</b> — 가로 (' + A + ' + 2x) m, 세로 (' + B + ' + 2x) m',
+        '<b>식 세우기</b> — (산책로) = (전체) &minus; (꽃밭) 이므로',
+        '(' + A + ' + 2x)(' + B + ' + 2x) &minus; ' + (A * B) + ' = ' + P,
+        '<b>정리하기</b> — ' + (A * B) + ' + ' + (2 * A) + 'x + ' + (2 * B) + 'x + 4x² &minus; ' + (A * B) + ' = ' + P,
+        '4x² + ' + (2 * (A + B)) + 'x &minus; ' + P + ' = 0  →  ' +
+        polyStr([[2, X2], [A + B, X], [-P / 2, '']]) + ' = 0',
+        '<b>풀기</b> — (x &minus; ' + x + ')(2x + ' + (P / (2 * x)) + ') = 0',
+        '<b>답 고르기</b> — 폭은 양수이므로 x = <b>' + x + '</b> m'
+      ]
+    };
+  };
+
+  /* 그림 ⑤ 양철판을 접어 만든 물받이 */
+  G['g-gutter'] = function (lvl) {
+    const half = ri(8, 16), W = 2 * half;
+    let h1 = ri(2, half - 2), h2 = half - h1;
+    if (h1 === h2 || h1 <= 0 || h2 <= 0) throw new Error('재생성');
+    const A = h1 * (W - 2 * h1);
+    if (h2 * (W - 2 * h2) !== A) throw new Error('재생성');
+    const sc = 150 / W, ox = 45, oy = 30, bw = (W - 2 * 5) * sc, bh = 45;
+    const body =
+      svgFill('M' + ox + ' ' + oy + ' v' + bh + ' h' + bw + ' v' + (-bh) + ' h-6 v' + (bh - 6) + ' h' + (-(bw - 12)) +
+        ' v' + (-(bh - 6)) + ' Z', 0.18) +
+      '<path d="M' + ox + ' ' + oy + ' v' + bh + ' h' + bw + ' v' + (-bh) + '"/>' +
+      '<path d="M' + (ox + 7) + ' ' + oy + ' v' + (bh - 7) + ' h' + (bw - 14) + ' v' + (-(bh - 7)) + '"/>' +
+      svgT(ox + bw / 2, oy + bh - 12, A + ' cm²') +
+      svgDash('M' + ox + ' ' + (oy + bh + 18) + ' L' + (ox + bw) + ' ' + (oy + bh + 18)) +
+      svgT(ox + bw / 2, oy + bh + 34, W + ' cm');
+    return {
+      q: '다음 그림과 같이 폭이 ' + W + ' cm인 양철판의 양쪽을 같은 높이만큼 직각으로 접어 올려 물받이를 만들려고 한다. ' +
+        '색칠한 단면의 넓이가 ' + A + ' cm²일 때, 물받이의 높이가 될 수 있는 것을 모두 구하시오.' +
+        '<div class="note">두 값을 쉼표로 구분</div>' + fig(250, oy + bh + 44, body),
+      ans: set([Math.min(h1, h2), Math.max(h1, h2)]),
+      sol: [
+        '<b>미지수 정하기</b> — 접어 올린 높이를 x cm라 하자.',
+        '<b>단면의 모양</b> — 밑변의 길이는 (' + W + ' &minus; 2x) cm, 높이는 x cm인 직사각형이다.',
+        '<b>식 세우기</b> — x(' + W + ' &minus; 2x) = ' + A,
+        '<b>정리하기</b> — 2x² &minus; ' + W + 'x + ' + A + ' = 0  →  ' +
+        polyStr([[1, X2], [-half, X], [A / 2, '']]) + ' = 0',
+        '<b>인수분해</b> — ' + bin(1, -Math.min(h1, h2)) + bin(1, -Math.max(h1, h2)) + ' = 0',
+        '<b>답 고르기</b> — 0 < x < ' + half + ' 이므로 두 값 모두 가능하다. x = <b>' +
+        Math.min(h1, h2) + '</b> 또는 <b>' + Math.max(h1, h2) + '</b> cm'
+      ]
+    };
+  };
+
+  /* 그림 ⑥ 두 점이 동시에 움직이는 직사각형 */
+  G['g-moving-point'] = function (lvl) {
+    const AB = 2 * ri(4, 8), BC = 2 * ri(6, 12);
+    const t1 = ri(1, 4), t2 = AB - t1;
+    if (t1 >= t2 || 2 * t2 > BC) throw new Error('재생성');
+    const area = t1 * (AB - t1);
+    const sc = 155 / BC, ox = 62, oy = 26, w = BC * sc, h = Math.min(AB * sc, 105);
+    const py = oy + h * 0.42, qx = ox + w * 0.3;
+    const body =
+      '<rect x="' + ox + '" y="' + oy + '" width="' + w + '" height="' + h + '"/>' +
+      svgFill('M' + ox + ' ' + py + ' L' + ox + ' ' + (oy + h) + ' L' + qx + ' ' + (oy + h) + ' Z', 0.2) +
+      '<path d="M' + ox + ' ' + py + ' L' + qx + ' ' + (oy + h) + '"/>' +
+      svgT(ox - 9, oy + 4, 'A') + svgT(ox + w + 9, oy + 4, 'D') +
+      svgT(ox - 9, oy + h + 6, 'B') + svgT(ox + w + 9, oy + h + 6, 'C') +
+      svgT(ox - 9, py + 4, 'P') + svgT(qx, oy + h + 17, 'Q') +
+      '<path d="M' + (ox + 9) + ' ' + (py - 12) + ' v14" stroke-width="1.2"/>' +
+      '<path d="M' + (ox + 6) + ' ' + (py + 2) + ' l3 4 l3 -4" stroke-width="1.2"/>' +
+      '<path d="M' + (qx + 8) + ' ' + (oy + h - 9) + ' h14" stroke-width="1.2"/>' +
+      '<path d="M' + (qx + 18) + ' ' + (oy + h - 12) + ' l4 3 l-4 3" stroke-width="1.2"/>' +
+      svgDash('M' + (ox - 20) + ' ' + oy + ' L' + (ox - 20) + ' ' + (oy + h)) +
+      svgT(ox - 27, oy + h / 2 + 4, AB + ' cm', 'end') +
+      svgDash('M' + ox + ' ' + (oy + h + 24) + ' L' + (ox + w) + ' ' + (oy + h + 24)) +
+      svgT(ox + w / 2, oy + h + 40, BC + ' cm');
+    return {
+      q: '다음 그림과 같은 직사각형 ABCD에서 점 P는 점 A를 출발하여 점 B까지 매초 1 cm의 속력으로 ' +
+        '<span class="ov2">AB</span> 위를 움직이고, 점 Q는 점 B를 출발하여 점 C까지 매초 2 cm의 속력으로 ' +
+        '<span class="ov2">BC</span> 위를 움직인다. 두 점 P, Q가 동시에 출발하였을 때, △PBQ의 넓이가 ' + area +
+        ' cm²가 되는 것은 출발한 지 몇 초 후인지 모두 구하시오.' +
+        '<div class="note">두 값을 쉼표로 구분</div>' + fig(250, oy + h + 50, body),
+      ans: set([t1, t2]),
+      sol: [
+        '<b>미지수 정하기</b> — 출발한 지 t초 후라 하자.',
+        '<b>두 변의 길이</b> — 점 P는 매초 1 cm이므로 <span class="ov2">AP</span> = t, ' +
+        '<span class="ov2">PB</span> = (' + AB + ' &minus; t) cm',
+        '점 Q는 매초 2 cm이므로 <span class="ov2">BQ</span> = 2t cm',
+        '<b>식 세우기</b> — △PBQ는 ∠B = 90°인 직각삼각형이므로',
+        '넓이 = ' + H.f(1, 2) + ' × (' + AB + ' &minus; t) × 2t = t(' + AB + ' &minus; t) = ' + area,
+        '<b>정리·인수분해</b> — ' + polyStr([[1, 't<sup>2</sup>'], [-AB, 't'], [area, '']]) + ' = 0  →  ' +
+        '(t &minus; ' + t1 + ')(t &minus; ' + t2 + ') = 0',
+        '<b>답 확인</b> — 0 < t ≤ ' + AB + ' 이고 2t ≤ ' + BC + ' 이므로 두 값 모두 가능하다.',
+        't = <b>' + t1 + '</b>초 후 또는 <b>' + t2 + '</b>초 후'
+      ]
+    };
+  };
+
+  /* 그림 ⑦ 종이를 잘라 만든 상자 */
+  G['g-box-cut'] = function (lvl) {
+    const h = ri(1, 4);
+    const A = 2 * ri(6, 11), B = 2 * ri(4, 8);
+    if (A - 2 * h <= 0 || B - 2 * h <= 0 || A === B) throw new Error('재생성');
+    const S = (A - 2 * h) * (B - 2 * h);
+    const other = (A + B) / 2 - h;
+    if (other > 0 && 2 * other < B) throw new Error('재생성');     // 해가 유일해야 한다
+    const sc = 150 / A, ox = 62, oy = 24, w = A * sc, hh2 = B * sc, c = h * sc;
+    const corner = (cx, cy) =>
+      svgFill('M' + cx + ' ' + cy + ' h' + c + ' v' + c + ' h' + (-c) + ' Z', 0.22) +
+      '<rect x="' + cx + '" y="' + cy + '" width="' + c + '" height="' + c + '" stroke-dasharray="3 2" stroke-width="1.2"/>';
+    const body =
+      '<rect x="' + ox + '" y="' + oy + '" width="' + w + '" height="' + hh2 + '"/>' +
+      corner(ox, oy) + corner(ox + w - c, oy) + corner(ox, oy + hh2 - c) + corner(ox + w - c, oy + hh2 - c) +
+      svgT(ox + w / 2, oy + hh2 / 2 + 5, '밑면') +
+      svgDash('M' + ox + ' ' + (oy + hh2 + 16) + ' L' + (ox + w) + ' ' + (oy + hh2 + 16)) +
+      svgT(ox + w / 2, oy + hh2 + 32, A + ' cm') +
+      svgDash('M' + (ox - 20) + ' ' + oy + ' L' + (ox - 20) + ' ' + (oy + hh2)) +
+      svgT(ox - 26, oy + hh2 / 2 + 4, B + ' cm', 'end');
+    return {
+      q: '다음 그림과 같이 가로, 세로의 길이가 각각 ' + A + ' cm, ' + B +
+        ' cm인 직사각형 모양의 종이의 네 귀퉁이에서 크기가 같은 정사각형을 잘라 내고 남은 종이로 ' +
+        '뚜껑이 없는 직육면체 모양의 상자를 만들었다. 이 상자의 밑면의 넓이가 ' + S +
+        ' cm²일 때, 상자의 높이를 구하시오.' + fig(250, oy + hh2 + 42, body),
+      ans: num(h),
+      sol: [
+        '<b>미지수 정하기</b> — 잘라 낸 정사각형의 한 변을 x cm라 하면 상자의 높이도 x cm이다.',
+        '<b>밑면의 크기</b> — 가로 세로 양쪽에서 x씩 잘리므로 (' + A + ' &minus; 2x) cm, (' + B + ' &minus; 2x) cm',
+        '<b>식 세우기</b> — (' + A + ' &minus; 2x)(' + B + ' &minus; 2x) = ' + S,
+        '<b>전개·정리</b> — ' + (A * B) + ' &minus; ' + (2 * (A + B)) + 'x + 4x² = ' + S,
+        '4x² &minus; ' + (2 * (A + B)) + 'x + ' + (A * B - S) + ' = 0  →  ' +
+        polyStr([[1, X2], [-(A + B) / 2, X], [(A * B - S) / 4, '']]) + ' = 0',
+        '<b>인수분해</b> — ' + bin(1, -h) + bin(1, -other) + ' = 0  →  x = ' + h + ' 또는 x = ' + other,
+        '<b>답 고르기</b> — 0 < 2x < ' + B + ' 즉 x < ' + (B / 2) + ' 이어야 하므로 x = <b>' + h + '</b> cm'
+      ]
+    };
+  };
+
+  /* =====================================================================
      중3 이차방정식 심화 (RPM 발전문제·실력UP 수준)
      ===================================================================== */
 
@@ -2066,6 +2366,14 @@
     { id: 's3-word-point', g: '중3', u: '이차방정식 활용', n: '활용 · 움직이는 점', k: '활용 동점 삼각형 넓이 매초 속력' },
     { id: 's3-word-rect', g: '중3', u: '이차방정식 활용', n: '활용 · 변하는 직사각형의 넓이', k: '활용 직사각형 넓이 변화 매초' },
 
+    { id: 'g-two-squares', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 두 정사각형의 넓이', k: '그림 도형 정사각형 넓이의 합' },
+    { id: 'g-semicircle', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 세 반원과 색칠한 넓이', k: '그림 반원 색칠한 부분 넓이 원주율' },
+    { id: 'g-inscribed-rect', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 직각삼각형에 내접한 직사각형', k: '그림 직각삼각형 내접 직사각형 닮음 넓이' },
+    { id: 'g-path', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 꽃밭 둘레의 산책로 폭', k: '그림 산책로 폭 넓이 직사각형' },
+    { id: 'g-gutter', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 양철판을 접은 물받이', k: '그림 물받이 단면 넓이 접어 올린 높이' },
+    { id: 'g-moving-point', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 움직이는 두 점', k: '그림 동점 삼각형 넓이 매초' },
+    { id: 'g-box-cut', g: '중3', u: '이차방정식 도형(그림)', n: '그림 · 종이를 잘라 만든 상자', k: '그림 상자 밑넓이 귀퉁이 정사각형' },
+
     { id: 'h2-exp-root', g: '고2', u: '지수와 로그', n: '지수법칙·거듭제곱근', k: '지수 거듭제곱근 유리수지수' },
     { id: 'h2-log-basic', g: '고2', u: '지수와 로그', n: '로그의 계산', k: '로그 log 밑변환 성질' },
     { id: 'h2-log-eq', g: '고2', u: '지수와 로그', n: '로그방정식', k: '로그방정식 진수 정의' },
@@ -2184,7 +2492,7 @@
   var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
 
   var S = { selected:{}, problems:[], idx:0, results:[], count:10, level:2, title:'',
-            seed:'', run:0, unlocked:false };
+            seed:'', run:0, unlocked:false, extra:{} };
   var ANSWER_PIN = '1213';
 
   function show(v){
@@ -2419,7 +2727,7 @@
 
   function startQuiz(problems){
     if(!problems.length){ msg('selMsg','err','문제를 만들지 못했습니다. 유형을 다시 골라주세요.'); return; }
-    S.problems = problems; S.idx = 0; S.results = [];
+    S.problems = problems; S.idx = 0; S.results = []; S.extra = {};
     show('quiz'); renderQ();
   }
 
@@ -2427,7 +2735,7 @@
     var p = S.problems[S.idx];
     $('qNo').textContent = (S.idx+1) + ' / ' + S.problems.length;
     $('progBar').style.width = (S.idx / S.problems.length * 100) + '%';
-    $('qType').textContent = p.grade + ' · ' + p.typeName;
+    $('qType').textContent = (p.isExtra ? '🔁 유사문제 · ' : '') + p.grade + ' · ' + p.typeName;
     $('qText').innerHTML = p.q;
     $('verdictArea').innerHTML = '';
     $('btnNext').classList.add('hide');
@@ -2503,13 +2811,30 @@
       Array.prototype.forEach.call($('answerArea').querySelectorAll('.keys button'), function(b){ b.disabled = true; });
     }
 
+    var again = '';
+    if(!ok){
+      var used = S.extra[p.typeId] || 0;
+      if(used < 2 && S.problems.length < 60){
+        var np = Q.makeProblem(p.typeId, p.level);
+        if(np){
+          np.isExtra = true;
+          S.problems.splice(S.idx + 1, 0, np);
+          S.extra[p.typeId] = used + 1;
+          again = '<div class="again">🔁 <b>같은 유형의 비슷한 문제를 하나 더 준비했습니다.</b><br>' +
+                  '해설을 읽고 바로 다음 문제에서 다시 풀어보세요.</div>';
+        }
+      } else {
+        again = '<div class="again">🔁 이 유형은 이미 두 번 더 연습했습니다. ' +
+                '아래 <b>비슷한 문제 한 번 더</b>를 눌러 더 풀 수 있습니다.</div>';
+      }
+    }
     $('verdictArea').innerHTML =
       '<div class="verdict '+(ok?'ok':'no')+'"><div class="h">' + (ok ? '⭕ 정답!' : '❌ 오답') + '</div>' +
-      '<div>정답: <b>' + Q.answerText(a) + '</b></div></div>' +
-      '<div class="sol"><div class="t">풀이</div><ol>' + p.sol.map(function(s){ return '<li>'+s+'</li>'; }).join('') + '</ol></div>';
+      '<div>정답: <b>' + Q.answerText(a) + '</b></div></div>' + again +
+      '<div class="sol"><div class="t">해설</div><ol>' + p.sol.map(function(s){ return '<li>'+s+'</li>'; }).join('') + '</ol></div>';
     $('btnSubmit').classList.add('hide');
     $('btnNext').classList.remove('hide');
-    if(!ok) $('btnMore').classList.remove('hide');
+    $('btnMore').classList.remove('hide');
     $('btnNext').textContent = (S.idx === S.problems.length-1) ? '결과 보기 →' : '다음 문제 →';
   }
 
@@ -2522,7 +2847,7 @@
   $('btnMore').addEventListener('click', function(){
     var p = S.problems[S.idx];
     var np = Q.makeProblem(p.typeId, p.level);
-    if(np) S.problems.splice(S.idx+1, 0, np);
+    if(np){ np.isExtra = true; S.problems.splice(S.idx+1, 0, np); }
     next();
   });
   $('btnQuit').addEventListener('click', function(){
@@ -2585,6 +2910,7 @@
       if(solved[i]) mark = '<div class="st ' + (solved[i].ok ? 'o">⭕ 학생이 맞힘' : 'x">❌ 학생이 틀림') + '</div>';
       return '<div class="aq">' +
         '<span class="no">' + (i+1) + '</span><span class="ty">' + esc(p.grade + ' · ' + p.typeName) + '</span>' +
+        (p.isExtra ? '<span class="badge2">유사문제</span>' : '') +
         '<div class="body">' + body + '</div>' +
         '<div class="ans">정답 &nbsp;<b>' + Q.answerText(a) + '</b></div>' + mark +
         '<ol>' + p.sol.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ol>' +
@@ -2599,7 +2925,8 @@
     var n = S.results.length, r = S.results.filter(function(x){return x.ok;}).length;
     var pct = n ? Math.round(r/n*100) : 0;
     $('scoreN').textContent = pct + '점';
-    $('scoreD').textContent = n + '문제 중 ' + r + '개 정답' +
+    var ex = S.results.length && S.problems.filter(function(x){return x.isExtra;}).length;
+    $('scoreD').textContent = n + '문제 중 ' + r + '개 정답' + (ex ? ' (유사문제 ' + ex + '개 포함)' : '') +
       (pct===100 ? ' · 완벽해요!' : pct>=80 ? ' · 잘하고 있어요' : pct>=60 ? ' · 조금만 더!' : ' · 틀린 유형을 다시 풀어봐요');
     var by = {};
     S.results.forEach(function(x){
